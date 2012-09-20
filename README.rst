@@ -25,8 +25,6 @@ with `DAWG`_ when it is possible.
 
 First, you have to create a dawg using DAWG_ module::
 
-::
-
     import dawg
     d = dawg.DAWG(data)
     d.save('words.dawg')
