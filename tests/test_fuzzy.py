@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import dawg_python
 
 from .utils import words100k, data_path
 
 words = words100k()
-dawg = dawg_python.Dictionary.load(data_path('int_dawg.dawg'))
+dawg = dawg_python.Dictionary.load(data_path('large', 'int_dawg.dawg'))
 
 class TestDictionary(object):
 

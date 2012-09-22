@@ -9,11 +9,11 @@ DEV_DATA_PATH = os.path.join(
     'dev_data',
 )
 
-def data_path(filename):
+def data_path(*args):
     """
     Returns a path to dev data
     """
-    return os.path.join(DEV_DATA_PATH, filename)
+    return os.path.join(DEV_DATA_PATH, *args)
 
 def words100k():
     zip_name = data_path('words100k.txt.zip')

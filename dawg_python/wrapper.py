@@ -102,7 +102,7 @@ class Completer(object):
     def value(self):
         return self._dic.value(self._last_index)
 
-    def start(self, index, prefix=""):
+    def start(self, index, prefix=b""):
         self.key = bytearray(prefix)
         self._index_stack = [index]
         self._last_index = self._dic.root()

@@ -29,7 +29,7 @@ class TestCompletionDAWG(object):
     keys = ['f', 'bar', 'foo', 'foobar']
 
     def dawg(self):
-        return dawg_python.CompletionDAWG().load(data_path('completion.dawg'))
+        return dawg_python.CompletionDAWG().load(data_path('small', 'completion.dawg'))
 
     def test_contains(self):
         d = self.dawg()

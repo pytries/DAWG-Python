@@ -59,16 +59,16 @@ def bench(name, timer, descr='M ops/sec', op_count=0.1, repeats=3, runs=5):
         #print(e)
 
 def load_dawg():
-    return dawg_python.DAWG().load(data_path('dawg.dawg'))
+    return dawg_python.DAWG().load(data_path('large', 'dawg.dawg'))
 
 def load_bytes_dawg():
-    return dawg_python.BytesDAWG().load(data_path('bytes_dawg.dawg'))
+    return dawg_python.BytesDAWG().load(data_path('large', 'bytes_dawg.dawg'))
 
 def load_record_dawg():
-    return dawg_python.RecordDAWG().load(data_path('record_dawg.dawg'))
+    return dawg_python.RecordDAWG(str('<H')).load(data_path('large', 'record_dawg.dawg'))
 
 def load_int_dawg():
-    return dawg_python.IntDAWG().load(data_path('int_dawg.dawg'))
+    return dawg_python.IntDAWG().load(data_path('large', 'int_dawg.dawg'))
 
 def benchmark():
     print('\n====== Benchmarks (100k unique unicode words) =======\n')
