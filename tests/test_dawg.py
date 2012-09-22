@@ -24,6 +24,44 @@ def test_c_dawg_contains():
     assert d.contains(b'foobar')
     assert d.contains(b'bar')
 
+
+class TestCompletionDAWG(object):
+    keys = ['f', 'bar', 'foo', 'foobar']
+
+    def dawg(self):
+        return dawg_python.CompletionDAWG().load(data_path('completion.dawg'))
+
+    def test_contains(self):
+        d = self.dawg()
+        for key in self.keys:
+            assert key in d
+
+    def test_contains_bytes(self):
+        d = self.dawg()
+        for key in self.keys:
+            assert key.encode('utf8') in d
+
+    def test_keys(self):
+        d = self.dawg()
+        assert d.keys() == sorted(self.keys)
+
+    def test_completion(self):
+        d = self.dawg()
+
+        assert d.keys('z') == []
+        assert d.keys('b') == ['bar']
+        assert d.keys('foo') == ['foo', 'foobar']
+
+    def test_no_segfaults_on_invalid_file(self):
+        d = self.dawg()
+        fd, path = tempfile.mkstemp()
+        with open(path, 'w') as f:
+            f.write('foo')
+
+        with pytest.raises(Exception) as e:
+            d.load(path)
+
+
 #class TestIntDAWG(object):
 #
 #    def dawg(self):
@@ -84,45 +122,4 @@ def test_c_dawg_contains():
 #
 #        with pytest.raises(OverflowError):
 #            dawg.IntDAWG({'f': 2**32-1})
-#
-#
-#class TestCompletionDAWG(object):
-#    keys = ['f', 'bar', 'foo', 'foobar']
-#
-#    def dawg(self):
-#        return dawg.CompletionDAWG(self.keys)
-#
-#    def test_completion(self):
-#        keys, d = self.keys, self.dawg()
-#        for key in keys:
-#            assert key in d
-#
-#        assert d.keys('foo') == ['foo', 'foobar']
-#        assert d.keys('b') == ['bar']
-#        assert d.keys('z') == []
-#
-#    def test_completion_dawg_saveload(self):
-#        buf = BytesIO()
-#        dawg.CompletionDAWG(self.keys).write(buf)
-#        buf.seek(0)
-#
-#        d = dawg.CompletionDAWG()
-#        d.read(buf)
-#
-#        for key in self.keys:
-#            assert key in d
-#
-#        assert d.keys('foo') == ['foo', 'foobar']
-#        assert d.keys('b') == ['bar']
-#        assert d.keys('z') == []
-#
-#    def test_no_segfaults_on_invalid_file(self):
-#        d = self.dawg()
-#        fd, path = tempfile.mkstemp()
-#        with open(path, 'w') as f:
-#            f.write('foo')
-#
-#        with pytest.raises(IOError) as e:
-#            d.load(path)
-#            assert "can't load _dawg.Dictionary" in e.args[0]
 #

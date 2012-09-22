@@ -72,3 +72,100 @@ class Dictionary(object):
         with open(path, 'rb') as f:
             dawg.read(f)
         return dawg
+
+
+class Guide(object):
+
+    def __init__(self):
+        self._units = None
+
+    def root(self):
+        return 0
+
+    def child(self, index):
+        return self._units[index*2]
+
+    def sibling(self, index):
+        return self._units[index*2 + 1]
+
+    def read(self, fp):
+        base_size = struct.unpack(str("=I"), fp.read(4))[0]
+        self._units = bytearray(fp.read(base_size*2))
+
+
+class Completer(object):
+
+    def __init__(self, dic=None, guide=None):
+        self._dic = dic
+        self._guide = guide
+
+    def value(self):
+        return self._dic.value(self._last_index)
+
+    def start(self, index, prefix=""):
+        self.key = bytearray(prefix)
+        self._index_stack = [index]
+        self._last_index = self._dic.root()
+
+    def next(self):
+        "Gets the next key"
+
+        if not self._index_stack:
+            return False
+
+        index = self._index_stack[-1]
+
+        if self._last_index != self._dic.root():
+
+            child_label = self._guide.child(index) # UCharType
+
+            if child_label:
+                # Follows a transition to the first child.
+                index = self._follow(child_label, index)
+                if index is None:
+                    return False
+            else:
+                while True:
+                    sibling_label = self._guide.sibling(index)
+                    # Moves to the previous node.
+                    if len(self.key) > 0:
+                        self.key.pop()
+                        #self.key[-1] = 0
+
+                    self._index_stack.pop()
+                    if not self._index_stack:
+                        return False
+
+                    index = self._index_stack[-1]
+                    if sibling_label:
+                        # Follows a transition to the next sibling.
+                        index = self._follow(sibling_label, index)
+                        if index is None:
+                            return False
+                        break
+
+        return self._find_terminal(index)
+
+
+    def _follow(self, label, index):
+        next_index = self._dic.follow_char(label, index)
+        if next_index is None:
+            return None
+
+        self.key.append(label)
+        self._index_stack.append(next_index)
+        return next_index
+
+    def _find_terminal(self, index):
+        while not self._dic.has_value(index):
+            label = self._guide.child(index)
+
+            index = self._dic.follow_char(label, index)
+            if index is None:
+                return False
+
+            self.key.append(label)
+            self._index_stack.append(index)
+
+        self._last_index = index
+        return True

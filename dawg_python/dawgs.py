@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-
-from .wrapper import Dictionary
+from . import wrapper
 
 class DAWG(object):
     """
@@ -11,7 +10,7 @@ class DAWG(object):
         self.dct = None
 
     def __contains__(self, key):
-        if isinstance(key, unicode):
+        if not isinstance(key, bytes):
             key = key.encode('utf8')
         return self.dct.contains(key)
 
@@ -19,7 +18,7 @@ class DAWG(object):
         """
         Loads DAWG from a file.
         """
-        self.dct = Dictionary.load(path)
+        self.dct = wrapper.Dictionary.load(path)
         return self
 
     def _similar_keys(self, current_prefix, key, index, replace_chars):
@@ -83,3 +82,53 @@ class DAWG(object):
             )
             for k, v in replaces.items()
         )
+
+
+class CompletionDAWG(DAWG):
+    """
+    DAWG with key completion support.
+    """
+
+    def __init__(self):
+        super(CompletionDAWG, self).__init__()
+        self.guide = None
+        self.completer = None
+
+    def keys(self, prefix=""):
+        b_prefix = prefix.encode('utf8')
+        index = self.dct.root()
+        res = []
+
+        index = self.dct.follow_bytes(b_prefix, index)
+        if index is None:
+            return res
+
+        self.completer.start(index, b_prefix)
+
+        while self.completer.next():
+            key = self.completer.key.decode('utf8')
+            res.append(key)
+
+        return res
+
+    def load(self, path):
+        """
+        Loads DAWG from a file.
+        """
+        self.dct = wrapper.Dictionary()
+        self.guide = wrapper.Guide()
+
+        with open(path, 'rb') as f:
+            self.dct.read(f)
+            self.guide.read(f)
+
+        self.completer = wrapper.Completer(self.dct, self.guide)
+        return self
+
+class BytesDAWG(CompletionDAWG):
+    def __init__(self):
+        raise NotImplementedError
+
+class RecordDAWG(BytesDAWG):
+    def __init__(self):
+        raise NotImplementedError
