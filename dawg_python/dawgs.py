@@ -90,6 +90,29 @@ class DAWG(object):
             for k, v in replaces.items()
         )
 
+    def prefixes(self, key):
+        '''
+        Returns a list with keys of this DAWG that are prefixes of the ``key``.
+        '''
+        res = []
+        index = self.dct.root()
+        if not isinstance(key, bytes):
+            key = key.encode('utf8')
+
+        pos = 1
+
+        for ch in bytearray(key):
+            index = self.dct.follow_char(ch, index)
+            if not index:
+                break
+
+            if self._has_value(index):
+                res.append(key[:pos].decode('utf8'))
+            pos += 1
+
+        return res
+
+
 
 class CompletionDAWG(DAWG):
     """

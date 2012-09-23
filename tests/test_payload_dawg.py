@@ -66,6 +66,12 @@ class TestBytesDAWG(object):
         d = self.dawg()
         assert d.items('foob') == [('foobar', b'data4')]
 
+    def test_prefixes(self):
+        d = self.dawg()
+        assert d.prefixes("foobarz") == ["foo", "foobar"]
+        assert d.prefixes("x") == []
+        assert d.prefixes("bar") == ["bar"]
+
 
 class TestRecordDAWG(object):
 
@@ -114,3 +120,9 @@ class TestRecordDAWG(object):
         assert sorted(d.keys('fo')) == ['foo', 'foo', 'foobar']
         assert d.keys('bar') == ['bar']
         assert d.keys('barz') == []
+
+    def test_prefixes(self):
+        d = self.dawg()
+        assert d.prefixes("foobarz") == ["foo", "foobar"]
+        assert d.prefixes("x") == []
+        assert d.prefixes("bar") == ["bar"]

@@ -77,6 +77,9 @@ PyPy 1.9, macbook air i5 1.8 Ghz)::
     BytesDAWG keys():       6.347 ops/sec
     RecordDAWG keys():      6.428 ops/sec
 
+    DAWG.prefixes (hits):    0.729M ops/sec
+    DAWG.prefixes (mixed):   1.770M ops/sec
+    DAWG.prefixes (misses):  1.420M ops/sec
 
     RecordDAWG.keys(prefix="xxx"), avg_len(res)==415:       1.531K ops/sec
     RecordDAWG.keys(prefix="xxxxx"), avg_len(res)==17:      39.823K ops/sec

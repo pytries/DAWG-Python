@@ -61,6 +61,13 @@ class TestCompletionDAWG(object):
         with pytest.raises(Exception) as e:
             d.load(path)
 
+    def test_prefixes(self):
+        d = self.dawg()
+        assert d.prefixes("foobarz") == ["f", "foo", "foobar"]
+        assert d.prefixes("x") == []
+        assert d.prefixes("bar") == ["bar"]
+
+
 
 #class TestIntDAWG(object):
 #
