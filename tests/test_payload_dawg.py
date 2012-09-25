@@ -54,6 +54,10 @@ class TestBytesDAWG(object):
         d = self.dawg()
         assert d.keys() == ['bar', 'foobar', 'foo', 'foo'] # order?
 
+    def test_iterkeys(self):
+        d = self.dawg()
+        assert list(d.iterkeys()) == d.keys()
+
     def test_key_completion(self):
         d = self.dawg()
         assert d.keys('fo') == ['foobar', 'foo', 'foo'] # order?
@@ -61,6 +65,12 @@ class TestBytesDAWG(object):
     def test_items(self):
         d = self.dawg()
         assert sorted(d.items()) == sorted(self.DATA)
+
+    def test_iteritems(self):
+        d = self.dawg()
+        assert list(d.iteritems('xxx')) == []
+        assert list(d.iteritems('fo')) == d.items('fo')
+        assert list(d.iteritems()) == d.items()
 
     def test_items_completion(self):
         d = self.dawg()

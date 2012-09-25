@@ -45,6 +45,10 @@ class TestCompletionDAWG(object):
         d = self.dawg()
         assert d.keys() == sorted(self.keys)
 
+    def test_iterkeys(self):
+        d = self.dawg()
+        assert list(d.iterkeys()) == d.keys()
+
     def test_completion(self):
         d = self.dawg()
 

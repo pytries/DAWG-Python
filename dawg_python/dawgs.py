@@ -126,10 +126,9 @@ class CompletionDAWG(DAWG):
 
     def keys(self, prefix=""):
         b_prefix = prefix.encode('utf8')
-        index = self.dct.root()
         res = []
 
-        index = self.dct.follow_bytes(b_prefix, index)
+        index = self.dct.follow_bytes(b_prefix, self.dct.root())
         if index is None:
             return res
 
@@ -140,6 +139,18 @@ class CompletionDAWG(DAWG):
             res.append(key)
 
         return res
+
+    def iterkeys(self, prefix=""):
+        b_prefix = prefix.encode('utf8')
+        index = self.dct.follow_bytes(b_prefix, self.dct.root())
+        if index is None:
+            return
+
+        self.completer.start(index, b_prefix)
+
+        while self.completer.next():
+            yield self.completer.key.decode('utf8')
+
 
     def load(self, path):
         """
@@ -242,6 +253,23 @@ class BytesDAWG(CompletionDAWG):
             res.append(u_key)
         return res
 
+    def iterkeys(self, prefix=""):
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+
+        index = self.dct.root()
+
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        self.completer.start(index, prefix)
+        while self.completer.next():
+            payload_idx = self.completer.key.index(PAYLOAD_SEPARATOR)
+            u_key = self.completer.key[:payload_idx].decode('utf8')
+            yield u_key
+
     def items(self, prefix=""):
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
@@ -257,10 +285,26 @@ class BytesDAWG(CompletionDAWG):
         while self.completer.next():
             key, value = self.completer.key.split(PAYLOAD_SEPARATOR)
             res.append(
-                (key.decode('utf8'), a2b_base64(bytes(value))) # python 2.6 fix
+                (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
             )
 
         return res
+
+    def iteritems(self, prefix=""):
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+
+        index = self.dct.root()
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        self.completer.start(index, prefix)
+        while self.completer.next():
+            key, value = self.completer.key.split(PAYLOAD_SEPARATOR)
+            item = (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
+            yield item
 
 
     def _has_value(self, index):
@@ -369,4 +413,8 @@ class RecordDAWG(BytesDAWG):
     def items(self, prefix=""):
         res = super(RecordDAWG, self).items(prefix)
         return [(key, self._struct.unpack(val)) for (key, val) in res]
+
+    def iteritems(self, prefix=""):
+        res = super(RecordDAWG, self).iteritems(prefix)
+        return ((key, self._struct.unpack(val)) for (key, val) in res)
 
