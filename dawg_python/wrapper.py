@@ -92,6 +92,9 @@ class Guide(object):
         base_size = struct.unpack(str("=I"), fp.read(4))[0]
         self._units = bytearray(fp.read(base_size*2))
 
+    def size(self):
+        return len(self._units) if self._units is not None else 0
+
 
 class Completer(object):
 
@@ -104,8 +107,13 @@ class Completer(object):
 
     def start(self, index, prefix=b""):
         self.key = bytearray(prefix)
-        self._index_stack = [index]
-        self._last_index = self._dic.root()
+
+        if self._guide.size():
+            self._index_stack = [index]
+            self._last_index = self._dic.root()
+        else:
+            self._index_stack = []
+
 
     def next(self):
         "Gets the next key"

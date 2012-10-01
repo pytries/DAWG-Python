@@ -65,6 +65,10 @@ class TestCompletionDAWG(object):
         with pytest.raises(Exception) as e:
             d.load(path)
 
+    def test_empty_dawg(self):
+        d = dawg_python.CompletionDAWG().load(data_path('small', 'completion-empty.dawg'))
+        assert d.keys() == []
+
     def test_prefixes(self):
         d = self.dawg()
         assert d.prefixes("foobarz") == ["f", "foo", "foobar"]
