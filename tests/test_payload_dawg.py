@@ -52,7 +52,7 @@ class TestBytesDAWG(object):
 
     def test_keys(self):
         d = self.dawg()
-        assert d.keys() == ['bar', 'foobar', 'foo', 'foo'] # order?
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar']
 
     def test_iterkeys(self):
         d = self.dawg()
@@ -60,11 +60,11 @@ class TestBytesDAWG(object):
 
     def test_key_completion(self):
         d = self.dawg()
-        assert d.keys('fo') == ['foobar', 'foo', 'foo'] # order?
+        assert d.keys('fo') == ['foo', 'foo', 'foobar']
 
     def test_items(self):
         d = self.dawg()
-        assert sorted(d.items()) == sorted(self.DATA)
+        assert d.items() == sorted(self.DATA)
 
     def test_iteritems(self):
         d = self.dawg()
@@ -85,8 +85,8 @@ class TestBytesDAWG(object):
 
 class TestRecordDAWG(object):
 
-    STRUCTURED_DATA = (  # payload is (length, vowels count, index) tuple
-        ('foo',     (3, 2, 0)),
+    STRUCTURED_DATA = (
+        ('foo',     (3, 2, 256)),
         ('bar',     (3, 1, 0)),
         ('foo',     (3, 2, 1)),
         ('foobar',  (6, 3, 0))
@@ -94,11 +94,11 @@ class TestRecordDAWG(object):
 
     def dawg(self):
         path = data_path("small", "record.dawg")
-        return dawg_python.RecordDAWG("=3H").load(path)
+        return dawg_python.RecordDAWG(">3H").load(path)
 
     def test_getitem(self):
         d = self.dawg()
-        assert d['foo'] == [(3, 2, 0), (3, 2, 1)]
+        assert d['foo'] == [(3, 2, 1), (3, 2, 256)]
         assert d['bar'] == [(3, 1, 0)]
         assert d['foobar'] == [(6, 3, 0)]
 
@@ -119,15 +119,15 @@ class TestRecordDAWG(object):
 
     def test_record_items(self):
         d = self.dawg()
-        assert sorted(d.items()) == sorted(self.STRUCTURED_DATA)
+        assert d.items() == sorted(self.STRUCTURED_DATA)
 
     def test_record_keys(self):
         d = self.dawg()
-        assert sorted(d.keys()) == ['bar', 'foo', 'foo', 'foobar',]
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar',]
 
     def test_record_keys_prefix(self):
         d = self.dawg()
-        assert sorted(d.keys('fo')) == ['foo', 'foo', 'foobar']
+        assert d.keys('fo') == ['foo', 'foo', 'foobar']
         assert d.keys('bar') == ['bar']
         assert d.keys('barz') == []
 

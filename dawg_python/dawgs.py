@@ -167,9 +167,7 @@ class CompletionDAWG(DAWG):
         return self
 
 
-# This symbol is not allowed in utf8 so it is safe to use
-# as a separator between utf8-encoded string and binary payload.
-PAYLOAD_SEPARATOR = b'\xff'
+PAYLOAD_SEPARATOR = b'\x01'
 MAX_VALUE_SIZE = 32768
 
 class BytesDAWG(CompletionDAWG):
@@ -180,6 +178,9 @@ class BytesDAWG(CompletionDAWG):
     In other words, this class implements read-only DAWG-based
     {unicode -> list of bytes objects} mapping.
     """
+
+    def __init__(self, payload_separator=PAYLOAD_SEPARATOR):
+        self._payload_separator = payload_separator
 
     def __contains__(self, key):
         if not isinstance(key, bytes):
@@ -210,7 +211,7 @@ class BytesDAWG(CompletionDAWG):
         if not index:
             return False
 
-        index = self.dct.follow_bytes(PAYLOAD_SEPARATOR, index)
+        index = self.dct.follow_bytes(self._payload_separator, index)
         if not index:
             return False
 
@@ -248,7 +249,7 @@ class BytesDAWG(CompletionDAWG):
 
         self.completer.start(index, prefix)
         while self.completer.next():
-            payload_idx = self.completer.key.index(PAYLOAD_SEPARATOR)
+            payload_idx = self.completer.key.index(self._payload_separator)
             u_key = self.completer.key[:payload_idx].decode('utf8')
             res.append(u_key)
         return res
@@ -266,7 +267,7 @@ class BytesDAWG(CompletionDAWG):
 
         self.completer.start(index, prefix)
         while self.completer.next():
-            payload_idx = self.completer.key.index(PAYLOAD_SEPARATOR)
+            payload_idx = self.completer.key.index(self._payload_separator)
             u_key = self.completer.key[:payload_idx].decode('utf8')
             yield u_key
 
@@ -283,7 +284,7 @@ class BytesDAWG(CompletionDAWG):
 
         self.completer.start(index, prefix)
         while self.completer.next():
-            key, value = self.completer.key.split(PAYLOAD_SEPARATOR)
+            key, value = self.completer.key.split(self._payload_separator)
             res.append(
                 (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
             )
@@ -302,7 +303,7 @@ class BytesDAWG(CompletionDAWG):
 
         self.completer.start(index, prefix)
         while self.completer.next():
-            key, value = self.completer.key.split(PAYLOAD_SEPARATOR)
+            key, value = self.completer.key.split(self._payload_separator)
             item = (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
             yield item
 
@@ -336,7 +337,7 @@ class BytesDAWG(CompletionDAWG):
             word_pos += 1
 
         else:
-            index = self.dct.follow_bytes(PAYLOAD_SEPARATOR, index)
+            index = self.dct.follow_bytes(self._payload_separator, index)
             if index:
                 found_key = current_prefix + key[start_pos:]
                 value = self._value_for_index(index)
@@ -380,7 +381,7 @@ class BytesDAWG(CompletionDAWG):
             word_pos += 1
 
         else:
-            index = self.dct.follow_bytes(PAYLOAD_SEPARATOR, index)
+            index = self.dct.follow_bytes(self._payload_separator, index)
             if index:
                 value = self._value_for_index(index)
                 res.insert(0, value)
@@ -401,8 +402,8 @@ class BytesDAWG(CompletionDAWG):
 
 
 class RecordDAWG(BytesDAWG):
-    def __init__(self, fmt):
-        super(RecordDAWG, self).__init__()
+    def __init__(self, fmt, payload_separator=PAYLOAD_SEPARATOR):
+        super(RecordDAWG, self).__init__(payload_separator)
         self._struct = struct.Struct(str(fmt))
         self.fmt = fmt
 

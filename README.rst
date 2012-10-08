@@ -91,7 +91,8 @@ Under CPython expect it to be about 50x slower.
 
 I think these results are quite good for pure-Python package. For example,
 under PyPy it has faster lookups and uses 2.5x less memory than `marisa-trie`_
-under Python 3.2 (`marisa-trie`_ is much slower/doesn't work under PyPy).
+under Python 3.2 (`marisa-trie`_ and `DAWG`_ are currently much
+slower/doesn't work under PyPy).
 
 It is several times slower under PyPy than Cython-based `DAWG`_ under CPython
 though, so `DAWG`_ + CPython > DAWG-Python + PyPy.
