@@ -13,7 +13,7 @@ EXTENSION_BIT = 1 << 9
 
 def has_leaf(base):
     " Checks if a unit has a leaf as a child or not."
-    return bool(base & HAS_LEAF_BIT & PRECISION_MASK)
+    return bool(base & HAS_LEAF_BIT)
 
 def value(base):
     "Checks if a unit corresponds to a leaf or not."
@@ -21,7 +21,7 @@ def value(base):
 
 def label(base):
     "Reads a label with a leaf flag from a non-leaf unit."
-    return base & (IS_LEAF_BIT | 0xFF) & PRECISION_MASK
+    return base & (IS_LEAF_BIT | 0xFF)
 
 def offset(base):
     "Reads an offset to child units from a non-leaf unit."
