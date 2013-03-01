@@ -5,6 +5,7 @@ import struct
 from binascii import a2b_base64
 
 from . import wrapper
+from .compat import int_from_byte
 
 class DAWG(object):
     """
@@ -101,8 +102,8 @@ class DAWG(object):
 
         pos = 1
 
-        for ch in bytearray(key):
-            index = self.dct.follow_char(ch, index)
+        for ch in key:
+            index = self.dct.follow_char(int_from_byte(ch), index)
             if not index:
                 break
 

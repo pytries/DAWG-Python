@@ -4,6 +4,7 @@ import struct
 import array
 
 from . import units
+from .compat import int_from_byte
 
 class Dictionary(object):
     """
@@ -58,8 +59,8 @@ class Dictionary(object):
 
     def follow_bytes(self, s, index):
         "Follows transitions."
-        for ch in bytearray(s):
-            index = self.follow_char(ch, index)
+        for ch in s:
+            index = self.follow_char(int_from_byte(ch), index)
             if index is None:
                 return None
 
