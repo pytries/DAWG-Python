@@ -89,7 +89,8 @@ class Guide(object):
 
     def read(self, fp):
         base_size = struct.unpack(str("=I"), fp.read(4))[0]
-        self._units = bytearray(fp.read(base_size*2))
+        self._units = array.array(str("B"))
+        self._units.fromfile(fp, base_size*2)
 
     def size(self):
         return len(self._units) if self._units is not None else 0
