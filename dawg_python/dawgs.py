@@ -73,7 +73,7 @@ class DAWG(object):
 
         This may be useful e.g. for handling single-character umlauts.
         """
-        return self._similar_keys("", key, self.dct.root(), replaces)
+        return self._similar_keys("", key, self.dct.ROOT, replaces)
 
     @classmethod
     def compile_replaces(cls, replaces):
@@ -95,7 +95,7 @@ class DAWG(object):
         Returns a list with keys of this DAWG that are prefixes of the ``key``.
         '''
         res = []
-        index = self.dct.root()
+        index = self.dct.ROOT
         if not isinstance(key, bytes):
             key = key.encode('utf8')
 
@@ -128,7 +128,7 @@ class CompletionDAWG(DAWG):
         b_prefix = prefix.encode('utf8')
         res = []
 
-        index = self.dct.follow_bytes(b_prefix, self.dct.root())
+        index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
         if index is None:
             return res
 
@@ -142,7 +142,7 @@ class CompletionDAWG(DAWG):
 
     def iterkeys(self, prefix=""):
         b_prefix = prefix.encode('utf8')
-        index = self.dct.follow_bytes(b_prefix, self.dct.root())
+        index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
         if index is None:
             return
 
@@ -207,7 +207,7 @@ class BytesDAWG(CompletionDAWG):
         return self.b_get_value(key) or default
 
     def _follow_key(self, b_key):
-        index = self.dct.follow_bytes(b_key, self.dct.root())
+        index = self.dct.follow_bytes(b_key, self.dct.ROOT)
         if not index:
             return False
 
@@ -240,7 +240,7 @@ class BytesDAWG(CompletionDAWG):
             prefix = prefix.encode('utf8')
         res = []
 
-        index = self.dct.root()
+        index = self.dct.ROOT
 
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
@@ -258,7 +258,7 @@ class BytesDAWG(CompletionDAWG):
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
 
-        index = self.dct.root()
+        index = self.dct.ROOT
 
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
@@ -276,7 +276,7 @@ class BytesDAWG(CompletionDAWG):
             prefix = prefix.encode('utf8')
         res = []
 
-        index = self.dct.root()
+        index = self.dct.ROOT
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
             if not index:
@@ -295,7 +295,7 @@ class BytesDAWG(CompletionDAWG):
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
 
-        index = self.dct.root()
+        index = self.dct.ROOT
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
             if not index:
@@ -355,7 +355,7 @@ class BytesDAWG(CompletionDAWG):
         that maps single-char unicode sitrings to another single-char
         unicode strings.
         """
-        return self._similar_items("", key, self.dct.root(), replaces)
+        return self._similar_items("", key, self.dct.ROOT, replaces)
 
 
     def _similar_item_values(self, start_pos, key, index, replace_chars):
@@ -398,7 +398,7 @@ class BytesDAWG(CompletionDAWG):
         that maps single-char unicode sitrings to another single-char
         unicode strings.
         """
-        return self._similar_item_values(0, key, self.dct.root(), replaces)
+        return self._similar_item_values(0, key, self.dct.ROOT, replaces)
 
 
 class RecordDAWG(BytesDAWG):

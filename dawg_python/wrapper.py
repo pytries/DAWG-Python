@@ -12,9 +12,8 @@ class Dictionary(object):
     def __init__(self):
         self._units = array.array(str("I"))
 
-    def root(self):
-        "Root index"
-        return 0
+    ROOT = 0
+    "Root index"
 
     def has_value(self, index):
         "Checks if a given index is related to the end of a key."
@@ -33,14 +32,14 @@ class Dictionary(object):
 
     def contains(self, key):
         "Exact matching."
-        index = self.follow_bytes(key, self.root())
+        index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return False
         return self.has_value(index)
 
     def find(self, key):
         "Exact matching (returns value)"
-        index = self.follow_bytes(key, self.root())
+        index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return -1
         if not self.has_value(index):
@@ -76,11 +75,10 @@ class Dictionary(object):
 
 class Guide(object):
 
+    ROOT = 0
+
     def __init__(self):
         self._units = None
-
-    def root(self):
-        return 0
 
     def child(self, index):
         return self._units[index*2]
@@ -110,7 +108,7 @@ class Completer(object):
 
         if self._guide.size():
             self._index_stack = [index]
-            self._last_index = self._dic.root()
+            self._last_index = self._dic.ROOT
         else:
             self._index_stack = []
 
@@ -123,7 +121,7 @@ class Completer(object):
 
         index = self._index_stack[-1]
 
-        if self._last_index != self._dic.root():
+        if self._last_index != self._dic.ROOT:
 
             child_label = self._guide.child(index) # UCharType
 
