@@ -3,16 +3,16 @@ from distutils.core import setup
 
 setup(
     name="DAWG-Python",
-    version="0.5",
+    version="0.5.1",
     description="Pure-python reader for DAWGs created by dawgdic C++ library or DAWG Python extension.",
-    long_description = open('README.rst').read() + open('CHANGES.rst').read(),
+    long_description = open('README.rst').read() + "\n\n"+ open('CHANGES.rst').read(),
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     url='https://github.com/kmike/DAWG-Python/',
     packages = ['dawg_python'],
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',

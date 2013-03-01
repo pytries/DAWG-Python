@@ -1,4 +1,10 @@
 
+0.5.1 (2013-03-01)
+------------------
+
+Internal tweaks: memory usage is reduced; something is a bit faster,
+something is a bit slower.
+
 0.5 (2012-10-08)
 ----------------
 

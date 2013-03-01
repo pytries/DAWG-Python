@@ -44,59 +44,50 @@ Benchmarks
 Benchmark results (100k unicode words, integer values (lenghts of the words),
 PyPy 1.9, macbook air i5 1.8 Ghz)::
 
-    dict __getitem__ (hits):        10.978M ops/sec
+    dict __getitem__ (hits):        11.090M ops/sec
     DAWG __getitem__ (hits):        not supported
-    BytesDAWG __getitem__ (hits):   0.423M ops/sec
-    RecordDAWG __getitem__ (hits):  0.348M ops/sec
+    BytesDAWG __getitem__ (hits):   0.493M ops/sec
+    RecordDAWG __getitem__ (hits):  0.376M ops/sec
 
     dict get() (hits):              10.127M ops/sec
     DAWG get() (hits):              not supported
-    BytesDAWG get() (hits):         0.438M ops/sec
-    RecordDAWG get() (hits):        0.363M ops/sec
+    BytesDAWG get() (hits):         0.481M ops/sec
+    RecordDAWG get() (hits):        0.402M ops/sec
     dict get() (misses):            14.885M ops/sec
     DAWG get() (misses):            not supported
-    BytesDAWG get() (misses):       1.228M ops/sec
-    RecordDAWG get() (misses):      1.239M ops/sec
+    BytesDAWG get() (misses):       1.259M ops/sec
+    RecordDAWG get() (misses):      1.337M ops/sec
 
-    dict __contains__ (hits):           10.341M ops/sec
-    DAWG __contains__ (hits):           1.086M ops/sec
-    BytesDAWG __contains__ (hits):      0.904M ops/sec
-    RecordDAWG __contains__ (hits):     0.886M ops/sec
+    dict __contains__ (hits):           11.100M ops/sec
+    DAWG __contains__ (hits):           1.317M ops/sec
+    BytesDAWG __contains__ (hits):      1.107M ops/sec
+    RecordDAWG __contains__ (hits):     1.095M ops/sec
 
-    dict __contains__ (misses):         9.823M ops/sec
-    DAWG __contains__ (misses):         1.491M ops/sec
-    BytesDAWG __contains__ (misses):    1.451M ops/sec
-    RecordDAWG __contains__ (misses):   1.437M ops/sec
+    dict __contains__ (misses):         10.567M ops/sec
+    DAWG __contains__ (misses):         1.902M ops/sec
+    BytesDAWG __contains__ (misses):    1.873M ops/sec
+    RecordDAWG __contains__ (misses):   1.862M ops/sec
 
     dict items():           44.401 ops/sec
     DAWG items():           not supported
-    BytesDAWG items():      3.437 ops/sec
-    RecordDAWG items():     3.210 ops/sec
+    BytesDAWG items():      3.226 ops/sec
+    RecordDAWG items():     2.987 ops/sec
     dict keys():            426.250 ops/sec
     DAWG keys():            not supported
-    BytesDAWG keys():       6.347 ops/sec
-    RecordDAWG keys():      6.428 ops/sec
+    BytesDAWG keys():       6.050 ops/sec
+    RecordDAWG keys():      6.363 ops/sec
 
-    DAWG.prefixes (hits):    0.729M ops/sec
-    DAWG.prefixes (mixed):   1.770M ops/sec
-    DAWG.prefixes (misses):  1.420M ops/sec
+    DAWG.prefixes (hits):    0.756M ops/sec
+    DAWG.prefixes (mixed):   1.965M ops/sec
+    DAWG.prefixes (misses):  1.773M ops/sec
 
-    RecordDAWG.keys(prefix="xxx"), avg_len(res)==415:       1.531K ops/sec
-    RecordDAWG.keys(prefix="xxxxx"), avg_len(res)==17:      39.823K ops/sec
-    RecordDAWG.keys(prefix="xxxxxxxx"), avg_len(res)==3:    165.236K ops/sec
-    RecordDAWG.keys(prefix="xxxxx..xx"), avg_len(res)==1.4: 237.831K ops/sec
-    RecordDAWG.keys(prefix="xxx"), NON_EXISTING:            4183.149K ops/sec
+    RecordDAWG.keys(prefix="xxx"), avg_len(res)==415:       1.429K ops/sec
+    RecordDAWG.keys(prefix="xxxxx"), avg_len(res)==17:      36.994K ops/sec
+    RecordDAWG.keys(prefix="xxxxxxxx"), avg_len(res)==3:    121.897K ops/sec
+    RecordDAWG.keys(prefix="xxxxx..xx"), avg_len(res)==1.4: 265.015K ops/sec
+    RecordDAWG.keys(prefix="xxx"), NON_EXISTING:            2450.898K ops/sec
 
 Under CPython expect it to be about 50x slower.
-
-I think these results are quite good for pure-Python package. For example,
-under PyPy it has faster lookups and uses 2.5x less memory than `marisa-trie`_
-under Python 3.2 (`marisa-trie`_ and `DAWG`_ are currently much
-slower/doesn't work under PyPy).
-
-It is several times slower under PyPy than Cython-based `DAWG`_ under CPython
-though, so `DAWG`_ + CPython > DAWG-Python + PyPy.
-
 Memory consumption of DAWG-Python should be the same as of `DAWG`_.
 
 .. _marisa-trie: https://github.com/kmike/marisa-trie
