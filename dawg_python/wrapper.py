@@ -79,7 +79,7 @@ class Guide(object):
     ROOT = 0
 
     def __init__(self):
-        self._units = None
+        self._units = array.array(str("B"))
 
     def child(self, index):
         return self._units[index*2]
@@ -89,11 +89,10 @@ class Guide(object):
 
     def read(self, fp):
         base_size = struct.unpack(str("=I"), fp.read(4))[0]
-        self._units = array.array(str("B"))
         self._units.fromfile(fp, base_size*2)
 
     def size(self):
-        return len(self._units) if self._units is not None else 0
+        return len(self._units)
 
 
 class Completer(object):
