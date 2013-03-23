@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.3"
+  - "3.2"
+  - "2.7"
+  - "2.6"
+  - "pypy"
+
+install:
+  - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then pip install --use-mirrors dawg; fi
+  - pip install coverage pytest-cov coveralls --use-mirrors
+  - python setup.py install
+
+# command to run tests, e.g. python setup.py test
+script:
+  - py.test --cov=dawg_python
+
+after_success:
+  - coveralls
