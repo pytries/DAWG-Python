@@ -1,5 +1,11 @@
-DAWG-python
+DAWG-Python
 ===========
+
+.. image:: https://travis-ci.org/kmike/DAWG-Python.png?branch=master
+    :target: https://travis-ci.org/kmike/DAWG-Python
+.. image:: https://coveralls.io/repos/kmike/DAWG-Python/badge.png?branch=master
+    :target: https://coveralls.io/r/kmike/DAWG-Python
+
 
 This pure-python package provides read-only access for files
 created by `dawgdic`_ C++ library and `DAWG`_ python package.
