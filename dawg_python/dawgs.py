@@ -123,7 +123,6 @@ class CompletionDAWG(DAWG):
     def __init__(self):
         super(CompletionDAWG, self).__init__()
         self.guide = None
-        self.completer = None
 
     def keys(self, prefix=""):
         b_prefix = prefix.encode('utf8')
@@ -133,10 +132,11 @@ class CompletionDAWG(DAWG):
         if index is None:
             return res
 
-        self.completer.start(index, b_prefix)
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, b_prefix)
 
-        while self.completer.next():
-            key = self.completer.key.decode('utf8')
+        while completer.next():
+            key = completer.key.decode('utf8')
             res.append(key)
 
         return res
@@ -147,10 +147,11 @@ class CompletionDAWG(DAWG):
         if index is None:
             return
 
-        self.completer.start(index, b_prefix)
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, b_prefix)
 
-        while self.completer.next():
-            yield self.completer.key.decode('utf8')
+        while completer.next():
+            yield completer.key.decode('utf8')
 
 
     def load(self, path):
@@ -164,7 +165,6 @@ class CompletionDAWG(DAWG):
             self.dct.read(f)
             self.guide.read(f)
 
-        self.completer = wrapper.Completer(self.dct, self.guide)
         return self
 
 
@@ -221,11 +221,13 @@ class BytesDAWG(CompletionDAWG):
     def _value_for_index(self, index):
         res = []
 
-        self.completer.start(index)
-        while self.completer.next():
+        completer = wrapper.Completer(self.dct, self.guide)
+
+        completer.start(index)
+        while completer.next():
             # a2b_base64 doesn't support bytearray in python 2.6
             # so it is converted (and copied) to bytes
-            b64_data = bytes(self.completer.key)
+            b64_data = bytes(completer.key)
             res.append(a2b_base64(b64_data))
 
         return res
@@ -248,10 +250,12 @@ class BytesDAWG(CompletionDAWG):
             if not index:
                 return res
 
-        self.completer.start(index, prefix)
-        while self.completer.next():
-            payload_idx = self.completer.key.index(self._payload_separator)
-            u_key = self.completer.key[:payload_idx].decode('utf8')
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            payload_idx = completer.key.index(self._payload_separator)
+            u_key = completer.key[:payload_idx].decode('utf8')
             res.append(u_key)
         return res
 
@@ -266,10 +270,12 @@ class BytesDAWG(CompletionDAWG):
             if not index:
                 return
 
-        self.completer.start(index, prefix)
-        while self.completer.next():
-            payload_idx = self.completer.key.index(self._payload_separator)
-            u_key = self.completer.key[:payload_idx].decode('utf8')
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            payload_idx = completer.key.index(self._payload_separator)
+            u_key = completer.key[:payload_idx].decode('utf8')
             yield u_key
 
     def items(self, prefix=""):
@@ -283,9 +289,11 @@ class BytesDAWG(CompletionDAWG):
             if not index:
                 return res
 
-        self.completer.start(index, prefix)
-        while self.completer.next():
-            key, value = self.completer.key.split(self._payload_separator)
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            key, value = completer.key.split(self._payload_separator)
             res.append(
                 (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
             )
@@ -302,9 +310,11 @@ class BytesDAWG(CompletionDAWG):
             if not index:
                 return
 
-        self.completer.start(index, prefix)
-        while self.completer.next():
-            key, value = self.completer.key.split(self._payload_separator)
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            key, value = completer.key.split(self._payload_separator)
             item = (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
             yield item
 
