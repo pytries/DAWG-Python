@@ -1,4 +1,10 @@
 
+0.6 (2013-03-23)
+----------------
+
+Use less shared state internally. This should fix thread-safety bugs and
+make iterkeys/iteritems reenterant.
+
 0.5.1 (2013-03-01)
 ------------------
 
