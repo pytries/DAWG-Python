@@ -2,6 +2,11 @@
 Changes
 =======
 
+0.7 (2013-10-13)
+----------------
+
+IntDAWG and IntCompletionDAWG are implemented.
+
 0.6 (2013-03-23)
 ----------------
 
