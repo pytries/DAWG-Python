@@ -102,7 +102,6 @@ Current limitations
 ===================
 
 * This package is not capable of creating DAWGs;
-* ``IntDAWG`` is not implemented;
 * all the limitations of `DAWG`_ apply.
 
 Contributions are welcome!

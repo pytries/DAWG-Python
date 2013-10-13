@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+import pickle
 import tempfile
 
 import pytest
@@ -8,7 +9,7 @@ import dawg_python
 from .utils import data_path
 
 def test_c_dawg_contains():
-    dawg = pytest.importorskip("dawg") #import dawg
+    dawg = pytest.importorskip("dawg")  # import dawg
     bin_dawg = dawg.IntDAWG({'foo': 1, 'bar': 2, 'foobar': 3})
 
     d = dawg_python.Dictionary()
@@ -77,64 +78,44 @@ class TestCompletionDAWG(object):
 
 
 
-#class TestIntDAWG(object):
-#
-#    def dawg(self):
-#        payload = {'foo': 1, 'bar': 5, 'foobar': 3}
-#        d = dawg.IntDAWG(payload)
-#        return payload, d
-#
-#    def test_getitem(self):
-#        payload, d = self.dawg()
-#        for key in payload:
-#            assert d[key] == payload[key]
-#
-#        with pytest.raises(KeyError):
-#            d['fo']
-#
-#
-#    def test_dumps_loads(self):
-#        payload, d = self.dawg()
-#        data = d.tobytes()
-#
-#        d2 = dawg.IntDAWG()
-#        d2.frombytes(data)
-#        for key, value in payload.items():
-#            assert key in d2
-#            assert d2[key] == value
-#
-#    def test_dump_load(self):
-#        payload, _ = self.dawg()
-#
-#        buf = BytesIO()
-#        dawg.IntDAWG(payload).write(buf)
-#        buf.seek(0)
-#
-#        d = dawg.IntDAWG()
-#        d.read(buf)
-#
-#        for key, value in payload.items():
-#            assert key in d
-#            assert d[key] == value
-#
-#    def test_pickling(self):
-#        payload, d = self.dawg()
-#
-#        data = pickle.dumps(d)
-#        d2 = pickle.loads(data)
-#
-#        for key, value in payload.items():
-#            assert key in d2
-#            assert d[key] == value
-#
-#    def test_int_value_ranges(self):
-#        for val in [0, 5, 2**16-1, 2**31-1]:
-#            d = dawg.IntDAWG({'f': val})
-#            assert d['f'] == val
-#
-#        with pytest.raises(ValueError):
-#            dawg.IntDAWG({'f': -1})
-#
-#        with pytest.raises(OverflowError):
-#            dawg.IntDAWG({'f': 2**32-1})
-#
+class TestIntDAWG(object):
+    payload = {'foo': 1, 'bar': 5, 'foobar': 3}
+
+    def dawg(self):
+        return dawg_python.IntDAWG().load(data_path('small', 'int_dawg.dawg'))
+
+    def test_getitem(self):
+        d = self.dawg()
+        for key in self.payload:
+            assert d[key] == self.payload[key]
+
+        with pytest.raises(KeyError):
+            d['fo']
+
+    def test_pickling(self):
+        d = self.dawg()
+
+        data = pickle.dumps(d)
+        d2 = pickle.loads(data)
+
+        for key, value in self.payload.items():
+            assert key in d2
+            assert d[key] == value
+
+
+class TestIntCompletionDawg(TestIntDAWG):
+    def dawg(self):
+        return dawg_python.IntCompletionDAWG().load(data_path('small', 'int_completion_dawg.dawg'))
+
+    def test_completion_keys(self):
+        assert self.dawg().keys() == sorted(self.payload.keys())
+
+    def test_completion_keys_with_prefix(self):
+        assert self.dawg().keys('fo') == ['foo', 'foobar']
+        assert self.dawg().keys('foo') == ['foo', 'foobar']
+        assert self.dawg().keys('foob') == ['foobar']
+        assert self.dawg().keys('z') == []
+        assert self.dawg().keys('b') == ['bar']
+
+    def test_completion_items(self):
+        assert self.dawg().items() == sorted(self.payload.items(), key=lambda r: r[0])

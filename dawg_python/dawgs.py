@@ -430,3 +430,73 @@ class RecordDAWG(BytesDAWG):
         res = super(RecordDAWG, self).iteritems(prefix)
         return ((key, self._struct.unpack(val)) for (key, val) in res)
 
+
+LOOKUP_ERROR = -1
+
+class IntDAWG(DAWG):
+    """
+    Dict-like class based on DAWG.
+    It can store integer values for unicode keys.
+    """
+    def __getitem__(self, key):
+        res = self.get(key, LOOKUP_ERROR)
+        if res == LOOKUP_ERROR:
+            raise KeyError(key)
+        return res
+
+    def get(self, key, default=None):
+        """
+        Return value for the given key or ``default`` if the key is not found.
+        """
+        if not isinstance(key, bytes):
+            key = key.encode('utf8')
+        res = self.b_get_value(key)
+        if res == LOOKUP_ERROR:
+            return default
+        return res
+
+    def b_get_value(self, key):
+        return self.dct.find(key)
+
+
+class IntCompletionDAWG(CompletionDAWG, IntDAWG):
+    """
+    Dict-like class based on DAWG.
+    It can store integer values for unicode keys and support key completion.
+    """
+    def items(self, prefix=""):
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        res = []
+        index = self.dct.ROOT
+
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return res
+
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            res.append(
+                (completer.key.decode('utf8'), completer.value())
+            )
+
+        return res
+
+    def iteritems(self, prefix=""):
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        index = self.dct.ROOT
+
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        completer = wrapper.Completer(self.dct, self.guide)
+        completer.start(index, prefix)
+
+        while completer.next():
+            yield completer.key.decode('utf8'), completer.value()
