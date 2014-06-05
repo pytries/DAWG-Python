@@ -1,6 +1,7 @@
 ^build
 ^MANIFEST$
 ^dist
+egg-info/
 \.so$
 \.o$
 \.lo$
