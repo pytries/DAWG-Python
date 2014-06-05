@@ -2,6 +2,13 @@
 Changes
 =======
 
+0.7.1 (2014-06-05)
+------------------
+
+- Switch to setuptools;
+- upload wheel tp pypi;
+- check Python 3.4 compatibility.
+
 0.7 (2013-10-13)
 ----------------
 
