@@ -153,13 +153,26 @@ class CompletionDAWG(DAWG):
         if not completer.start_edges(index, b_prefix):
             return res
 
-        key = completer.key.decode('utf8')
-        res.append(key)
+        res.append(completer.decoded_key)
         while completer.next_edge():
-            key = completer.key.decode('utf8')
-            res.append(key)
+            res.append(completer.decoded_key)
 
         return res
+
+    def iteredges(self, prefix=""):
+        b_prefix = prefix.encode('utf8')
+
+        index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
+        if index is None:
+            return
+
+        completer = wrapper.Completer(self.dct, self.guide)
+        if not completer.start_edges(index, b_prefix):
+            return
+
+        yield completer.decoded_key
+        while completer.next_edge():
+            yield completer.decoded_key
 
     def iterkeys(self, prefix=""):
         b_prefix = prefix.encode('utf8')

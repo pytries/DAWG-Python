@@ -46,9 +46,19 @@ class TestCompletionDAWG(object):
         d = self.dawg()
         assert d.keys() == sorted(self.keys)
 
+    def test_edges(self):
+        d = self.dawg()
+        assert d.edges() == ['b', 'f']
+        assert d.edges('f') == ['fo']
+
     def test_iterkeys(self):
         d = self.dawg()
         assert list(d.iterkeys()) == d.keys()
+
+    def test_iter_edges(self):
+        d = self.dawg()
+        assert list(d.iteredges()) == ['b', 'f']
+        assert list(d.edges('f')) == ['fo']
 
     def test_completion(self):
         d = self.dawg()

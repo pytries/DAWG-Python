@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 import struct
 import array
-import pdb
 
 from . import units
 from .compat import int_from_byte
@@ -122,6 +121,7 @@ class Completer(object):
         index_stack. Otherwise, leave the stack empty, so next_edge() fails"""
 
         self.key = bytearray(prefix)
+        self.base_key_len = len(self.key)
         self._parent_index = index
         self._sib_index = None
         if self._guide.size():
@@ -133,6 +133,7 @@ class Completer(object):
                 if index is not None:
                     self._sib_index = next_index
                     self.key.append(child_label)
+                    self.decoded_key = self.key.decode('utf-8')
                     return True
 
     def next_edge(self):
@@ -146,9 +147,26 @@ class Completer(object):
                                                 self._parent_index)
         if not self._sib_index:
             return False
-        
-        self.key.pop()
+
+        self.key = self.key[:self.base_key_len]
         self.key.append(sibling_label)
+        try:
+            self.decoded_key = self.key.decode('utf-8')
+        except UnicodeDecodeError:
+            #this sibling is multi-character. keep following its children til
+            #something is decodable
+            cur_index = self._sib_index
+            while True:
+                child_label = self._guide.child(self._sib_index)
+                cur_index = self._dic.follow_char(child_label, cur_index)
+                if not cur_index:
+                    return False
+                self.key.append(child_label)
+                try:
+                    self.decoded_key = self.key.decode('utf-8')
+                    break
+                except UnicodeDecodeError:
+                    pass
         return True
 
     def next(self):
