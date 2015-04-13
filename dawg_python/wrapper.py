@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 import struct
 import array
+import pdb
 
 from . import units
 from .compat import int_from_byte
@@ -105,6 +106,8 @@ class Completer(object):
         return self._dic.value(self._last_index)
 
     def start(self, index, prefix=b""):
+        "initial setup for a completer next() action on some prefix"
+
         self.key = bytearray(prefix)
 
         if self._guide.size():
@@ -113,6 +116,40 @@ class Completer(object):
         else:
             self._index_stack = []
 
+    def start_edges(self, index, prefix=b""):
+        """initial setup for a completer next_edge() action on some prefix. If
+        there's a child for this prefix, we add that as the one item on the
+        index_stack. Otherwise, leave the stack empty, so next_edge() fails"""
+
+        self.key = bytearray(prefix)
+        self._parent_index = index
+        self._sib_index = None
+        if self._guide.size():
+            child_label = self._guide.child(index) # UCharType
+
+            if child_label:
+                # Follows a transition to the first child.
+                next_index = self._dic.follow_char(child_label, index)
+                if index is not None:
+                    self._sib_index = next_index
+                    self.key.append(child_label)
+                    return True
+
+    def next_edge(self):
+        "Gets the next edge (not necessarily a terminal)"
+
+        if not self._sib_index:
+            return False
+
+        sibling_label = self._guide.sibling(self._sib_index)
+        self._sib_index = self._dic.follow_char(sibling_label,
+                                                self._parent_index)
+        if not self._sib_index:
+            return False
+        
+        self.key.pop()
+        self.key.append(sibling_label)
+        return True
 
     def next(self):
         "Gets the next key"
@@ -152,7 +189,6 @@ class Completer(object):
                         break
 
         return self._find_terminal(index)
-
 
     def _follow(self, label, index):
         next_index = self._dic.follow_char(label, index)
