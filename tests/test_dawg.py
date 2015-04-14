@@ -91,7 +91,7 @@ class TestCompletionDAWG(object):
 
 
 class TestIntDAWG(object):
-    payload = {'foo': 1, 'bar': 5, 'foobar': 3}
+    payload = {'foo': 1, 'bar': 5, 'foobar': 30}
 
     def dawg(self):
         return dawg_python.IntDAWG().load(data_path('small', 'int_dawg.dawg'))
@@ -135,7 +135,9 @@ class TestIntCompletionDawg(TestIntDAWG):
     def test_completion_edges(self):
         assert self.dawg().edges('ba') == [('bar', 5)]
         assert self.dawg().edges('foob') == [('fooba', False)]
+        assert self.dawg().edges('fooba') == [('foobar', 30)]
 
     def test_completion_iteredges(self):
         assert list(self.dawg().iteredges('ba')) == [('bar', 5)]
         assert list(self.dawg().iteredges('foob')) == [('fooba', False)]
+        assert list(self.dawg().iteredges('fooba')) == [('foobar', 30)]
