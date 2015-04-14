@@ -17,29 +17,29 @@ class Dictionary(object):
     "Root index"
 
     def has_value(self, index):
-        "Checks if a given index is related to the end of a key."
+        #Checks if a given index is related to the end of a key.
         return units.has_leaf(self._units[index])
 
     def value(self, index):
-        "Gets a value from a given index."
+        #Gets a value from a given index.
         offset = units.offset(self._units[index])
         value_index = (index ^ offset) & units.PRECISION_MASK
         return units.value(self._units[value_index])
 
     def read(self, fp):
-        "Reads a dictionary from an input stream."
+        #Reads a dictionary from an input stream.
         base_size = struct.unpack(str("=I"), fp.read(4))[0]
         self._units.fromfile(fp, base_size)
 
     def contains(self, key):
-        "Exact matching."
+        #Exact matching.
         index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return False
         return self.has_value(index)
 
     def find(self, key):
-        "Exact matching (returns value)"
+        #Exact matching (returns value)
         index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return -1
@@ -48,7 +48,7 @@ class Dictionary(object):
         return self.value(index)
 
     def follow_char(self, label, index):
-        "Follows a transition"
+        #Follows a transition
         offset = units.offset(self._units[index])
         next_index = (index ^ offset ^ label) & units.PRECISION_MASK
 
@@ -58,7 +58,7 @@ class Dictionary(object):
         return next_index
 
     def follow_bytes(self, s, index):
-        "Follows transitions."
+        #Follows transitions.
         for ch in s:
             index = self.follow_char(int_from_byte(ch), index)
             if index is None:
@@ -95,6 +95,77 @@ class Guide(object):
         return len(self._units)
 
 
+class EdgeFollower(object):
+    def __init__(self, dic=None, guide=None):
+        self._dic = dic
+        self._guide = guide
+
+    def value(self):
+        if self._dic.has_value(self._cur_index):
+            return self._dic.value(self._cur_index)
+        return False
+
+    def start(self, index, prefix=b""):
+        """initial setup for a completer next_edge() action on some prefix. If
+        there's a child for this prefix, we add that as the one item on the
+        index_stack. Otherwise, leave the stack empty, so next_edge() fails"""
+
+        self.key = bytearray(prefix)
+        self.base_key_len = len(self.key)
+        self._parent_index = index
+        self._sib_index = None
+        self._cur_index = None
+        if self._guide.size():
+            child_label = self._guide.child(index) # UCharType
+
+            if child_label:
+                # Follows a transition to the first child.
+                next_index = self._dic.follow_char(child_label, index)
+                if index is not None:
+                    self._sib_index = next_index
+                    self._cur_index = self._sib_index
+                    self.key.append(child_label)
+                    self.decoded_key = self.key.decode('utf-8')
+                    return True
+
+    def next(self):
+        #Gets the next edge (not necessarily a terminal)
+
+        if not self._sib_index:
+            return False
+
+        sibling_label = self._guide.sibling(self._sib_index)
+        self._sib_index = self._dic.follow_char(sibling_label,
+                                                self._parent_index)
+        self._cur_index = self._sib_index
+        if not self._sib_index:
+            return False
+
+        self.key = self.key[:self.base_key_len]
+        self.key.append(sibling_label)
+        try:
+            self.decoded_key = self.key.decode('utf-8')
+        except UnicodeDecodeError:
+            #this sibling is a multibyte char. keep following its children til
+            #something is decodable
+            while True:
+                child_label = self._guide.child(self._sib_index)
+                self._cur_index = self._dic.follow_char(child_label,
+                                                        self._cur_index)
+                if not self._cur_index:
+                    return False
+                self.key.append(child_label)
+                try:
+                    self.decoded_key = self.key.decode('utf-8')
+                    break
+                except UnicodeDecodeError:
+                    pass
+        return True
+
+    def get_cur_edge(self):
+        return (self.decoded_key, self._dic.has_value(self._cur_index))
+
+
 class Completer(object):
 
     def __init__(self, dic=None, guide=None):
@@ -105,7 +176,7 @@ class Completer(object):
         return self._dic.value(self._last_index)
 
     def start(self, index, prefix=b""):
-        "initial setup for a completer next() action on some prefix"
+        #initial setup for a completer next() action on some prefix
 
         self.key = bytearray(prefix)
 
@@ -115,62 +186,8 @@ class Completer(object):
         else:
             self._index_stack = []
 
-    def start_edges(self, index, prefix=b""):
-        """initial setup for a completer next_edge() action on some prefix. If
-        there's a child for this prefix, we add that as the one item on the
-        index_stack. Otherwise, leave the stack empty, so next_edge() fails"""
-
-        self.key = bytearray(prefix)
-        self.base_key_len = len(self.key)
-        self._parent_index = index
-        self._sib_index = None
-        if self._guide.size():
-            child_label = self._guide.child(index) # UCharType
-
-            if child_label:
-                # Follows a transition to the first child.
-                next_index = self._dic.follow_char(child_label, index)
-                if index is not None:
-                    self._sib_index = next_index
-                    self.key.append(child_label)
-                    self.decoded_key = self.key.decode('utf-8')
-                    return True
-
-    def next_edge(self):
-        "Gets the next edge (not necessarily a terminal)"
-
-        if not self._sib_index:
-            return False
-
-        sibling_label = self._guide.sibling(self._sib_index)
-        self._sib_index = self._dic.follow_char(sibling_label,
-                                                self._parent_index)
-        if not self._sib_index:
-            return False
-
-        self.key = self.key[:self.base_key_len]
-        self.key.append(sibling_label)
-        try:
-            self.decoded_key = self.key.decode('utf-8')
-        except UnicodeDecodeError:
-            #this sibling is multi-character. keep following its children til
-            #something is decodable
-            cur_index = self._sib_index
-            while True:
-                child_label = self._guide.child(self._sib_index)
-                cur_index = self._dic.follow_char(child_label, cur_index)
-                if not cur_index:
-                    return False
-                self.key.append(child_label)
-                try:
-                    self.decoded_key = self.key.decode('utf-8')
-                    break
-                except UnicodeDecodeError:
-                    pass
-        return True
-
     def next(self):
-        "Gets the next key"
+        #Gets the next key
 
         if not self._index_stack:
             return False
