@@ -58,6 +58,18 @@ class TestBytesDAWG(object):
         d = self.dawg()
         assert list(d.iterkeys()) == d.keys()
 
+    def test_edges(self):
+        d = self.dawg()
+        assert d.edges('foob') == [('fooba', False)]
+        assert d.edges('fooba') == [('foobar', b'data4')]
+        assert d.edges('fo') == [('foo', b'data1'), ('foo', b'data3')]
+
+    def test_iteredges(self):
+        d = self.dawg()
+        assert list(d.iteredges('foob')) == [('fooba', False)]
+        assert list(d.iteredges('fooba')) == [('foobar', b'data4')]
+        assert list(d.iteredges('fo')) == [('foo', b'data1'), ('foo', b'data3')]
+
     def test_key_completion(self):
         d = self.dawg()
         assert d.keys('fo') == ['foo', 'foo', 'foobar']
@@ -75,6 +87,8 @@ class TestBytesDAWG(object):
     def test_items_completion(self):
         d = self.dawg()
         assert d.items('foob') == [('foobar', b'data4')]
+        assert d.items('foo') == [('foo', b'data1'), ('foo', b'data3'),
+                                  ('foobar', b'data4')]
 
     def test_prefixes(self):
         d = self.dawg()
