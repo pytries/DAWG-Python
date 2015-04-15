@@ -77,6 +77,7 @@ class TestBytesDAWG(object):
     def test_items(self):
         d = self.dawg()
         assert d.items() == sorted(self.DATA)
+        assert d.items('not a real key') == []
 
     def test_iteritems(self):
         d = self.dawg()

@@ -101,14 +101,16 @@ class EdgeFollower(object):
         self._guide = guide
 
     def value(self):
+        "provides list of values at current index"
+
         if self._dic.has_value(self._cur_index):
             return self._dic.value(self._cur_index)
         return False
 
     def start(self, index, prefix=b""):
-        """initial setup for a completer next_edge() action on some prefix. If
-        there's a child for this prefix, we add that as the one item on the
-        index_stack. Otherwise, leave the stack empty, so next_edge() fails"""
+        """initial setup for the next() action on some prefix. If there's a
+        child for this prefix, we add that as the one item on the index_stack.
+        Otherwise, leave the stack empty, so next() fails"""
 
         self.key = bytearray(prefix)
         self.base_key_len = len(self.key)
@@ -129,7 +131,7 @@ class EdgeFollower(object):
                     return True
 
     def next(self):
-        #Gets the next edge (not necessarily a terminal)
+        "Gets the next edge (not necessarily a terminal)"
 
         if not self._sib_index:
             return False
@@ -163,6 +165,9 @@ class EdgeFollower(object):
         return True
 
     def get_cur_edge(self):
+        """helper method for getting the decoded key along with whether or not
+        it is a terminal"""
+
         return (self.decoded_key, self._dic.has_value(self._cur_index))
 
 
@@ -173,10 +178,12 @@ class Completer(object):
         self._guide = guide
 
     def value(self):
+        "provides list of values at current index"
+
         return self._dic.value(self._last_index)
 
     def start(self, index, prefix=b""):
-        #initial setup for a completer next() action on some prefix
+        "initial setup for a completer next() action on some prefix"
 
         self.key = bytearray(prefix)
 
@@ -187,7 +194,7 @@ class Completer(object):
             self._index_stack = []
 
     def next(self):
-        #Gets the next key
+        "Gets the next key"
 
         if not self._index_stack:
             return False

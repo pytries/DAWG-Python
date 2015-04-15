@@ -318,7 +318,7 @@ class BytesDAWG(CompletionDAWG):
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
             if not index:
-                return
+                return []
         res = []
 
         completer = wrapper.Completer(self.dct, self.guide)
