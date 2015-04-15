@@ -127,7 +127,7 @@ class EdgeFollower(object):
                     self._sib_index = next_index
                     self._cur_index = self._sib_index
                     self.key.append(child_label)
-                    self.decoded_key = self.key.decode('utf-8')
+                    self.decoded_key = self.key.decode('utf8')
                     return True
 
     def next(self):
@@ -146,7 +146,7 @@ class EdgeFollower(object):
         self.key = self.key[:self.base_key_len]
         self.key.append(sibling_label)
         try:
-            self.decoded_key = self.key.decode('utf-8')
+            self.decoded_key = self.key.decode('utf8')
         except UnicodeDecodeError:
             #this sibling is a multibyte char. keep following its children til
             #something is decodable
@@ -158,7 +158,7 @@ class EdgeFollower(object):
                     return False
                 self.key.append(child_label)
                 try:
-                    self.decoded_key = self.key.decode('utf-8')
+                    self.decoded_key = self.key.decode('utf8')
                     break
                 except UnicodeDecodeError:
                     pass
