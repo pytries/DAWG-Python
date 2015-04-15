@@ -364,10 +364,10 @@ class BytesDAWG(CompletionDAWG):
         if not edge_follower.start(index, prefix):
             return res
 
-        vals = self.b_get_value(edge_follower.key) or [False]
+        vals = self.b_get_value(bytes(edge_follower.key)) or [False]
         res.extend([(edge_follower.decoded_key, val) for val in vals])
         while edge_follower.next():
-            vals = self.b_get_value(edge_follower.key) or [False]
+            vals = self.b_get_value(bytes(edge_follower.key)) or [False]
             res.extend([(edge_follower.decoded_key, val) for val in vals])
 
         return res
@@ -385,11 +385,11 @@ class BytesDAWG(CompletionDAWG):
         if not edge_follower.start(index, prefix):
             return
 
-        vals = self.b_get_value(edge_follower.key) or [False]
+        vals = self.b_get_value(bytes(edge_follower.key)) or [False]
         for val in vals:
             yield (edge_follower.decoded_key, val or False)
         while edge_follower.next():
-            vals = self.b_get_value(edge_follower.key) or [False]
+            vals = self.b_get_value(bytes(edge_follower.key)) or [False]
             for val in vals:
                 yield (edge_follower.decoded_key, val or False)
 
