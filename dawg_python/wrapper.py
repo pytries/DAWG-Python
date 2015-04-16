@@ -105,6 +105,12 @@ class EdgeFollower(object):
 
         if self._dic.has_value(self._cur_index):
             return self._dic.value(self._cur_index)
+        return None
+
+    def has_value(self):
+        "boolean telling whether or not cur_index has a value"
+        if self._dic.has_value(self._cur_index):
+            return True
         return False
 
     def start(self, index, prefix=b""):
