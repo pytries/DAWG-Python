@@ -537,12 +537,19 @@ class RecordDAWG(BytesDAWG):
 
     def items(self, prefix=""):
         res = super(RecordDAWG, self).items(prefix)
+        print("items data:")
+        print(res)
         return [(key, self._struct.unpack(val)) for (key, val) in res]
 
     def iteritems(self, prefix=""):
         res = super(RecordDAWG, self).iteritems(prefix)
         return ((key, self._struct.unpack(val)) for (key, val) in res)
 
+    #def edges_data(self, prefix=""):
+    #    return super(RecordDAWG, self).edges_data(prefix)
+
+    #def iteredges_data(self, prefix=""):
+    #    return super(RecordDAWG, self).iteredges_data(prefix)
 
 LOOKUP_ERROR = -1
 

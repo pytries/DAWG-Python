@@ -149,6 +149,19 @@ class TestRecordDAWG(object):
         d = self.dawg()
         assert d.items() == sorted(self.STRUCTURED_DATA)
 
+    def test_edges_data(self):
+        d = self.dawg()
+        assert d.edges_data('foob') == [('fooba', None)]
+        assert d.edges_data('fooba') == [('foobar', (6, 3, 0))]
+        assert d.edges_data('fo') == [('foo', (3, 2, 1)), ('foo', (3, 2, 256))]
+
+    def test_iteredges_data(self):
+        d = self.dawg()
+        assert list(d.iteredges_data('foob')) == [('fooba', None)]
+        assert list(d.iteredges_data('fooba')) == [('foobar', (6, 3, 0))]
+        assert list(d.iteredges_data('fo')) == [('foo', (3, 2, 1)),
+                                                ('foo', (3, 2, 256))]
+
     def test_record_keys(self):
         d = self.dawg()
         assert d.keys() == ['bar', 'foo', 'foo', 'foobar',]
