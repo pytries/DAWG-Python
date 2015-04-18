@@ -3,8 +3,8 @@ from setuptools import setup
 
 setup(
     name="DAWG-Python",
-    version="0.7.1",
-    description="Pure-python reader for DAWGs created by dawgdic C++ library or DAWG Python extension.",
+    version="0.7.2",
+    description="Pure-python reader for DAWGs (DAFSAs) created by dawgdic C++ library or DAWG Python extension.",
     long_description = open('README.rst').read() + "\n\n"+ open('CHANGES.rst').read(),
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',

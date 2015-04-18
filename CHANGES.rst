@@ -2,6 +2,12 @@
 Changes
 =======
 
+0.7.2 (2015-04-18)
+------------------
+
+- minor speedup;
+- bitbucket mirror is no longer maintained.
+
 0.7.1 (2014-06-05)
 ------------------
 
