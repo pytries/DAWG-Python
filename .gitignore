@@ -1,0 +1,9 @@
+build/
+MANIFEST
+dist/
+DAWG_Python.egg-info/
+
+^stuff/
+*.pyc
+.tox/
+*.orig
