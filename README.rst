@@ -110,15 +110,10 @@ Contributions are welcome!
 Contributing
 ============
 
-Development happens at github and bitbucket:
+Development happens at github: https://github.com/kmike/DAWG-Python
+Issue tracker: https://github.com/kmike/DAWG-Python/issues
 
-* https://github.com/kmike/DAWG-Python
-* https://bitbucket.org/kmike/DAWG-Python
-
-The main issue tracker is at github: https://github.com/kmike/DAWG-Python/issues
-
-Feel free to submit ideas, bugs, pull requests (git or hg) or
-regular patches.
+Feel free to submit ideas, bugs or pull requests.
 
 Running tests and benchmarks
 ----------------------------
