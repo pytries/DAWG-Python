@@ -6,6 +6,7 @@ import array
 from . import units
 from .compat import int_from_byte
 
+
 class Dictionary(object):
     """
     Dictionary class for retrieval and binary I/O.
@@ -113,7 +114,6 @@ class Completer(object):
         else:
             self._index_stack = []
 
-
     def next(self):
         "Gets the next key"
 
@@ -124,7 +124,7 @@ class Completer(object):
 
         if self._last_index != self._dic.ROOT:
 
-            child_label = self._guide.child(index) # UCharType
+            child_label = self._guide.child(index)  # UCharType
 
             if child_label:
                 # Follows a transition to the first child.
@@ -152,7 +152,6 @@ class Completer(object):
                         break
 
         return self._find_terminal(index)
-
 
     def _follow(self, label, index):
         next_index = self._dic.follow_char(label, index)
