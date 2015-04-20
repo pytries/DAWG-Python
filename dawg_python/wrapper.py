@@ -96,7 +96,8 @@ class Guide(object):
 
 
 class EdgeFollower(object):
-    def __init__(self, dic=None, guide=None):
+    def __init__(self, dic=None, guide=None, payload_separator=1):
+        self._payload_separator = payload_separator
         self._dic = dic
         self._guide = guide
 
@@ -132,9 +133,13 @@ class EdgeFollower(object):
                 if index is not None:
                     self._sib_index = next_index
                     self._cur_index = self._sib_index
-                    self.key.append(child_label)
-                    self.decoded_key = self.key.decode('utf8')
-                    return True
+                    #skip if the child is \x01 (the divider char)
+                    if child_label == self._payload_separator:
+                        self.next()
+                    else:
+                        self.key.append(child_label)
+                        self.decoded_key = self.key.decode('utf8')
+                        return True
 
     def next(self):
         "Gets the next edge (not necessarily a terminal)"
@@ -148,7 +153,8 @@ class EdgeFollower(object):
         self._cur_index = self._sib_index
         if not self._sib_index:
             return False
-
+        if sibling_label == self._payload_separator:
+            self.next()
         self.key = self.key[:self.base_key_len]
         self.key.append(sibling_label)
         try:

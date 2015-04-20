@@ -75,6 +75,7 @@ class TestBytesDAWG(object):
         assert d.edges_data('foob') == [('fooba', None)]
         assert d.edges_data('fooba') == [('foobar', b'data4')]
         assert d.edges_data('fo') == [('foo', b'data1'), ('foo', b'data3')]
+        assert d.edges_data('foobar') == []
 
     def test_iteredges_data(self):
         d = self.dawg()
@@ -82,6 +83,7 @@ class TestBytesDAWG(object):
         assert list(d.iteredges_data('fooba')) == [('foobar', b'data4')]
         assert list(d.iteredges_data('fo')) == \
                [('foo', b'data1'), ('foo', b'data3')]
+        assert list(d.iteredges_data('foobar')) == []
 
     def test_key_completion(self):
         d = self.dawg()
