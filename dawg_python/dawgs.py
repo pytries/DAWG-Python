@@ -215,7 +215,6 @@ class BytesDAWG(CompletionDAWG):
 
     def __init__(self, payload_separator=PAYLOAD_SEPARATOR):
         self._payload_separator = payload_separator
-        self._payload_separator_byte = bytearray(payload_separator).pop()
 
     def __contains__(self, key):
         if not isinstance(key, bytes):
@@ -362,7 +361,7 @@ class BytesDAWG(CompletionDAWG):
         res = []
 
         edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
-                                             self._payload_separator_byte)
+                                             self._payload_separator)
         if not edge_follower.start(index, prefix):
             return res
 
@@ -383,7 +382,7 @@ class BytesDAWG(CompletionDAWG):
                 return
 
         edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
-                                             self._payload_separator_byte)
+                                             self._payload_separator)
         if not edge_follower.start(index, prefix):
             return
 
@@ -404,7 +403,7 @@ class BytesDAWG(CompletionDAWG):
         res = []
 
         edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
-                                             self._payload_separator_byte)
+                                             self._payload_separator)
         if not edge_follower.start(index, prefix):
             return res
 
@@ -425,7 +424,7 @@ class BytesDAWG(CompletionDAWG):
                 return
 
         edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
-                                             self._payload_separator_byte)
+                                             self._payload_separator)
         if not edge_follower.start(index, prefix):
             return
 
