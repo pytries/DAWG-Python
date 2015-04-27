@@ -11,7 +11,10 @@ class TestBytesDAWG(object):
         ('foo', b'data1'),
         ('bar', b'data2'),
         ('foo', b'data3'),
-        ('foobar', b'data4')
+        ('foobar', b'data4'),
+        (u'ሀ', b'ethiopic_sign1'),
+        (u'ሮ', b'ethiopic_sign2'),
+        (u'ቄ', b'ethiopic_sign3')
     )
 
     def dawg(self):
@@ -33,6 +36,7 @@ class TestBytesDAWG(object):
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
+        assert d[u'ቄ'] == [b'ethiopic_sign3']
 
 
     def test_getitem_missing(self):
@@ -52,42 +56,47 @@ class TestBytesDAWG(object):
 
     def test_keys(self):
         d = self.dawg()
-        assert d.keys() == ['bar', 'foo', 'foo', 'foobar']
+        assert d.keys() == [u'bar', u'foo', u'foo', u'foobar', u'ሀ', u'ሮ',
+                            u'ቄ']
 
     def test_iterkeys(self):
         d = self.dawg()
         assert list(d.iterkeys()) == d.keys()
 
-    def test_edges(self):
+    def test_children(self):
         d = self.dawg()
-        assert d.edges('foob') == [('fooba', False)]
-        assert d.edges('fooba') == [('foobar', True)]
-        assert d.edges('fo') == [('foo', True)]
-        assert d.edges('foo') == [('foob', False)]
+        assert d.children('foob') == [('fooba', False)]
+        assert d.children('fooba') == [('foobar', True)]
+        assert d.children('fo') == [('foo', True)]
+        assert d.children('foo') == [('foob', False)]
 
-    def test_iteredges(self):
+    def test_iterchildren(self):
         d = self.dawg()
-        assert list(d.iteredges('foob')) == [('fooba', False)]
-        assert list(d.iteredges('fooba')) == [('foobar', True)]
-        assert list(d.iteredges('fo')) == [('foo', True)]
-        assert list(d.iteredges('foo')) == [('foob', False)]
+        assert list(d.iterchildren('foob')) == [('fooba', False)]
+        assert list(d.iterchildren('fooba')) == [('foobar', True)]
+        assert list(d.iterchildren('fo')) == [('foo', True)]
+        assert list(d.iterchildren('foo')) == [('foob', False)]
 
-    def test_edges_data(self):
+    def test_children_data(self):
         d = self.dawg()
-        assert d.edges_data('foob') == [('fooba', None)]
-        assert d.edges_data('fooba') == [('foobar', b'data4')]
-        assert d.edges_data('fo') == [('foo', b'data1'), ('foo', b'data3')]
-        assert d.edges_data('foobar') == []
-        assert d.edges_data('foo') == [('foob', None)]
+        assert d.children_data('foob') == [('fooba', None)]
+        assert d.children_data('fooba') == [('foobar', b'data4')]
+        assert d.children_data('fo') == [('foo', b'data1'), ('foo', b'data3')]
+        assert d.children_data('foobar') == []
+        assert d.children_data('foo') == [('foob', None)]
+        assert set(d.children_data('')) == set([('b', None), ('f', None),
+                                             (u'ሀ', b'ethiopic_sign1'),
+                                             (u'ሮ', b'ethiopic_sign2'),
+                                             (u'ቄ', b'ethiopic_sign3')])
 
-    def test_iteredges_data(self):
+    def test_iterchildren_data(self):
         d = self.dawg()
-        assert list(d.iteredges_data('foob')) == [('fooba', None)]
-        assert list(d.iteredges_data('fooba')) == [('foobar', b'data4')]
-        assert list(d.iteredges_data('fo')) == \
+        assert list(d.iterchildren_data('foob')) == [('fooba', None)]
+        assert list(d.iterchildren_data('fooba')) == [('foobar', b'data4')]
+        assert list(d.iterchildren_data('fo')) == \
                [('foo', b'data1'), ('foo', b'data3')]
-        assert list(d.iteredges_data('foobar')) == []
-        assert list(d.iteredges_data('foo')) == [('foob', None)]
+        assert list(d.iterchildren_data('foobar')) == []
+        assert list(d.iterchildren_data('foo')) == [('foob', None)]
 
     def test_key_completion(self):
         d = self.dawg()
@@ -155,17 +164,17 @@ class TestRecordDAWG(object):
         d = self.dawg()
         assert d.items() == sorted(self.STRUCTURED_DATA)
 
-    def test_edges_data(self):
+    def test_children_data(self):
         d = self.dawg()
-        assert d.edges_data('foob') == [('fooba', None)]
-        assert d.edges_data('fooba') == [('foobar', (6, 3, 0))]
-        assert d.edges_data('fo') == [('foo', (3, 2, 1)), ('foo', (3, 2, 256))]
+        assert d.children_data('foob') == [('fooba', None)]
+        assert d.children_data('fooba') == [('foobar', (6, 3, 0))]
+        assert d.children_data('fo') == [('foo', (3, 2, 1)), ('foo', (3, 2, 256))]
 
-    def test_iteredges_data(self):
+    def test_iterchildren_data(self):
         d = self.dawg()
-        assert list(d.iteredges_data('foob')) == [('fooba', None)]
-        assert list(d.iteredges_data('fooba')) == [('foobar', (6, 3, 0))]
-        assert list(d.iteredges_data('fo')) == [('foo', (3, 2, 1)),
+        assert list(d.iterchildren_data('foob')) == [('fooba', None)]
+        assert list(d.iterchildren_data('fooba')) == [('foobar', (6, 3, 0))]
+        assert list(d.iterchildren_data('fo')) == [('foo', (3, 2, 1)),
                                                 ('foo', (3, 2, 256))]
 
     def test_record_keys(self):

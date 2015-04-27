@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 import struct
 import array
+import pdb
 
 from . import units
 from .compat import int_from_byte
@@ -142,7 +143,7 @@ class EdgeFollower(object):
                         return True
 
     def next(self):
-        "Gets the next edge (not necessarily a terminal)"
+        "Gets the next child (not necessarily a terminal)"
 
         if not self._sib_index:
             return False
@@ -176,7 +177,7 @@ class EdgeFollower(object):
                     pass
         return True
 
-    def get_cur_edge(self):
+    def get_cur_child(self):
         """helper method for getting the decoded key along with whether or not
         it is a terminal"""
 
@@ -266,3 +267,17 @@ class Completer(object):
 
         self._last_index = index
         return True
+
+
+#the first byte in a utf-8 char determines how many total bytes are in the char.
+#the number of bytes = number of leading ones in first byte (i.e. e5 = 225 =
+#3 bytes (including the first)
+def levels_to_descend(byte_val):
+        if byte_val < 128:
+            return 0
+        elif byte_val < 192:
+            return 1
+        elif byte_val < 224:
+            return 2
+        else:
+            return 3

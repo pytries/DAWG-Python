@@ -8,6 +8,7 @@ import dawg_python
 
 from .utils import data_path
 
+
 def test_c_dawg_contains():
     dawg = pytest.importorskip("dawg")  # import dawg
     bin_dawg = dawg.IntDAWG({'foo': 1, 'bar': 2, 'foobar': 3})
@@ -30,7 +31,8 @@ class TestCompletionDAWG(object):
     keys = ['f', 'bar', 'foo', 'foobar']
 
     def dawg(self):
-        return dawg_python.CompletionDAWG().load(data_path('small', 'completion.dawg'))
+        return dawg_python.CompletionDAWG().load(data_path('small',
+                                                           'completion.dawg'))
 
     def test_contains(self):
         d = self.dawg()
@@ -46,23 +48,23 @@ class TestCompletionDAWG(object):
         d = self.dawg()
         assert d.keys() == sorted(self.keys)
 
-    def test_edges(self):
+    def test_children(self):
         d = self.dawg()
-        assert d.edges() == [('b', False), ('f', True)]
-        assert d.edges('b') == [('ba', False)]
-        assert d.edges('fo') == [('foo', True)]
-        assert d.edges('foobar') == []
+        assert d.children() == [('b', False), ('f', True)]
+        assert d.children('b') == [('ba', False)]
+        assert d.children('fo') == [('foo', True)]
+        assert d.children('foobar') == []
 
     def test_iterkeys(self):
         d = self.dawg()
         assert list(d.iterkeys()) == d.keys()
 
-    def test_iter_edges(self):
+    def test_iter_children(self):
         d = self.dawg()
-        assert list(d.iteredges()) == [('b', False), ('f', True)]
-        assert list(d.iteredges('b')) == [('ba', False)]
-        assert list(d.edges('fo')) == [('foo', True)]
-        assert list(d.edges('foobar')) == []
+        assert list(d.iterchildren()) == [('b', False), ('f', True)]
+        assert list(d.iterchildren('b')) == [('ba', False)]
+        assert list(d.children('fo')) == [('foo', True)]
+        assert list(d.children('foobar')) == []
 
     def test_completion(self):
         d = self.dawg()
@@ -89,7 +91,6 @@ class TestCompletionDAWG(object):
         assert d.prefixes("foobarz") == ["f", "foo", "foobar"]
         assert d.prefixes("x") == []
         assert d.prefixes("bar") == ["bar"]
-
 
 
 class TestIntDAWG(object):
@@ -134,26 +135,26 @@ class TestIntCompletionDawg(TestIntDAWG):
     def test_completion_items(self):
         assert self.dawg().items() == sorted(self.payload.items(), key=lambda r: r[0])
 
-    def test_completion_edges(self):
-        assert self.dawg().edges('ba') == [('bar', True)]
-        assert self.dawg().edges('foob') == [('fooba', False)]
-        assert self.dawg().edges('fooba') == [('foobar', True)]
-        assert self.dawg().edges('foobar') == []
+    def test_completion_children(self):
+        assert self.dawg().children('ba') == [('bar', True)]
+        assert self.dawg().children('foob') == [('fooba', False)]
+        assert self.dawg().children('fooba') == [('foobar', True)]
+        assert self.dawg().children('foobar') == []
 
-    def test_completion_iteredges(self):
-        assert list(self.dawg().iteredges('ba')) == [('bar', True)]
-        assert list(self.dawg().iteredges('foob')) == [('fooba', False)]
-        assert list(self.dawg().iteredges('fooba')) == [('foobar', True)]
-        assert list(self.dawg().iteredges('foobar')) == []
+    def test_completion_iterchildren(self):
+        assert list(self.dawg().iterchildren('ba')) == [('bar', True)]
+        assert list(self.dawg().iterchildren('foob')) == [('fooba', False)]
+        assert list(self.dawg().iterchildren('fooba')) == [('foobar', True)]
+        assert list(self.dawg().iterchildren('foobar')) == []
 
-    def test_completion_edges_data(self):
-        assert self.dawg().edges_data('ba') == [('bar', 5)]
-        assert self.dawg().edges_data('foob') == [('fooba', None)]
-        assert self.dawg().edges_data('fooba') == [('foobar', 30)]
-        assert self.dawg().edges_data('foobar') == []
+    def test_completion_children_data(self):
+        assert self.dawg().children_data('ba') == [('bar', 5)]
+        assert self.dawg().children_data('foob') == [('fooba', None)]
+        assert self.dawg().children_data('fooba') == [('foobar', 30)]
+        assert self.dawg().children_data('foobar') == []
 
-    def test_completion_iteredges_data(self):
-        assert list(self.dawg().iteredges_data('ba')) == [('bar', 5)]
-        assert list(self.dawg().iteredges_data('foob')) == [('fooba', None)]
-        assert list(self.dawg().iteredges_data('fooba')) == [('foobar', 30)]
-        assert list(self.dawg().iteredges_data('foobar')) == []
+    def test_completion_iterchildren_data(self):
+        assert list(self.dawg().iterchildren_data('ba')) == [('bar', 5)]
+        assert list(self.dawg().iterchildren_data('foob')) == [('fooba', None)]
+        assert list(self.dawg().iterchildren_data('fooba')) == [('foobar', 30)]
+        assert list(self.dawg().iterchildren_data('foobar')) == []
