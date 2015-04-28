@@ -123,59 +123,63 @@ class EdgeFollower(object):
         self.key = bytearray(prefix)
         self.base_key_len = len(self.key)
         self._parent_index = index
-        self._sib_index = None
-        self._cur_index = None
+        self._sib_index_stack = []
         if self._guide.size():
-            child_label = self._guide.child(index) # UCharType
-
+            child_label = self._guide.child(index)
             if child_label:
                 # Follows a transition to the first child.
-                next_index = self._dic.follow_char(child_label, index)
+                child_index = self._dic.follow_char(child_label, index)
                 if index is not None:
-                    self._sib_index = next_index
-                    self._cur_index = self._sib_index
+                    self._sib_index_stack.append(
+                        (child_index, 0, None, bytearray()))
                     #skip if the child is \x01 (the divider char)
                     if child_label == self._payload_separator:
                         return self.next()
                     else:
-                        self.key.append(child_label)
-                        self.decoded_key = self.key.decode('utf8')
-                        return True
+                        return self._get_next_multibyte(
+                            child_label, child_index, None, bytearray())
+        return False
+
+    def _get_next_multibyte(self, child_label, index, lvls=None,
+                            part_key=None):
+        """given some child_label and its index, goes down the approp num levels
+        to get the first decodable chr"""
+        part_key.append(child_label)
+        if lvls is None:
+            lvls = levels_to_descend(child_label)
+        if lvls > 0:
+            pdb.set_trace()
+            for i in xrange(lvls):
+                next_child_label = self._guide.child(index)
+                prev_index = index
+                index = self._dic.follow_char(next_child_label, index)
+                self._sib_index_stack.append(
+                    (index, i, prev_index, part_key[:]))
+                part_key.append(next_child_label)
+        self.key.extend(part_key)
+        self.decoded_key = self.key.decode('utf8')
+        self._cur_index = index
+        return True
 
     def next(self):
         "Gets the next child (not necessarily a terminal)"
 
-        if not self._sib_index:
+        if not self._sib_index_stack:
             return False
-
-        sibling_label = self._guide.sibling(self._sib_index)
-        self._sib_index = self._dic.follow_char(sibling_label,
-                                                self._parent_index)
-        self._cur_index = self._sib_index
-        if not self._sib_index:
+        sib_index, lvls, parent_index, part_key = self._sib_index_stack.pop()
+        if not parent_index:
+            parent_index = self._parent_index
+        sibling_label = self._guide.sibling(sib_index)
+        sib_index = self._dic.follow_char(sibling_label, parent_index)
+        #pdb.set_trace()
+        if not sib_index:
             return False
+        self._sib_index_stack.append((sib_index, None, None, bytearray()))
         if sibling_label == self._payload_separator:
             return self.next()
         self.key = self.key[:self.base_key_len]
-        self.key.append(sibling_label)
-        try:
-            self.decoded_key = self.key.decode('utf8')
-        except UnicodeDecodeError:
-            #this sibling is a multibyte char. keep following its children til
-            #something is decodable
-            while True:
-                child_label = self._guide.child(self._sib_index)
-                self._cur_index = self._dic.follow_char(child_label,
-                                                        self._cur_index)
-                if not self._cur_index:
-                    return False
-                self.key.append(child_label)
-                try:
-                    self.decoded_key = self.key.decode('utf8')
-                    break
-                except UnicodeDecodeError:
-                    pass
-        return True
+        return self._get_next_multibyte(sibling_label, sib_index, lvls,
+                                        part_key)
 
     def get_cur_child(self):
         """helper method for getting the decoded key along with whether or not
@@ -273,11 +277,11 @@ class Completer(object):
 #the number of bytes = number of leading ones in first byte (i.e. e5 = 225 =
 #3 bytes (including the first)
 def levels_to_descend(byte_val):
-        if byte_val < 128:
+        if byte_val < 192:
             return 0
-        elif byte_val < 192:
-            return 1
         elif byte_val < 224:
+            return 1
+        elif byte_val < 240:
             return 2
         else:
             return 3
