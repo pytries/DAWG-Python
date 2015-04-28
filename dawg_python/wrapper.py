@@ -147,7 +147,7 @@ class EdgeFollower(object):
         if lvls is None:
             lvls = levels_to_descend(child_label)
         if lvls > 0:
-            for i in reversed(xrange(lvls)):
+            for i in reversed(range(lvls)):
                 next_child_label = self._guide.child(index)
                 prev_index = index
                 index = self._dic.follow_char(next_child_label, index)
