@@ -12,9 +12,9 @@ class TestBytesDAWG(object):
         ('bar', b'data2'),
         ('foo', b'data3'),
         ('foobar', b'data4'),
-        (u'\u1200', b'ethiopic_sign1'),
-        (u'\u122e', b'ethiopic_sign2'),
-        (u'\u1244', b'ethiopic_sign3')
+        ('ሀ', b'ethiopic_sign1'),
+        ('ሮ', b'ethiopic_sign2'),
+        ('ቄ', b'ethiopic_sign3')
     )
 
     def dawg(self):
@@ -36,7 +36,7 @@ class TestBytesDAWG(object):
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
-        assert d[u'\u1244'] == [b'ethiopic_sign3']
+        assert d['\u1244'] == [b'ethiopic_sign3']
 
 
     def test_getitem_missing(self):
@@ -56,8 +56,7 @@ class TestBytesDAWG(object):
 
     def test_keys(self):
         d = self.dawg()
-        assert d.keys() == [u'bar', u'foo', u'foo', u'foobar', u'ሀ', u'ሮ',
-                            u'ቄ']
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar', 'ሀ', 'ሮ', 'ቄ']
 
     def test_iterkeys(self):
         d = self.dawg()
@@ -85,9 +84,9 @@ class TestBytesDAWG(object):
         assert d.children_data('foobar') == []
         assert d.children_data('foo') == [('foob', None)]
         assert set(d.children_data('')) == set([('b', None), ('f', None),
-                                             (u'ሀ', b'ethiopic_sign1'),
-                                             (u'ሮ', b'ethiopic_sign2'),
-                                             (u'ቄ', b'ethiopic_sign3')])
+                                             ('ሀ', b'ethiopic_sign1'),
+                                             ('ሮ', b'ethiopic_sign2'),
+                                             ('ቄ', b'ethiopic_sign3')])
 
     def test_iterchildren_data(self):
         d = self.dawg()
