@@ -12,9 +12,9 @@ class TestBytesDAWG(object):
         ('bar', b'data2'),
         ('foo', b'data3'),
         ('foobar', b'data4'),
-        (u'ሀ', b'ethiopic_sign1'),
-        (u'ሮ', b'ethiopic_sign2'),
-        (u'ቄ', b'ethiopic_sign3')
+        (u'\u1200', b'ethiopic_sign1'),
+        (u'\u122e', b'ethiopic_sign2'),
+        (u'\u1244', b'ethiopic_sign3')
     )
 
     def dawg(self):
@@ -36,7 +36,7 @@ class TestBytesDAWG(object):
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
-        assert d[u'ቄ'] == [b'ethiopic_sign3']
+        assert d[u'\u1244'] == [b'ethiopic_sign3']
 
 
     def test_getitem_missing(self):
