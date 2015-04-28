@@ -11,7 +11,10 @@ class TestBytesDAWG(object):
         ('foo', b'data1'),
         ('bar', b'data2'),
         ('foo', b'data3'),
-        ('foobar', b'data4')
+        ('foobar', b'data4'),
+        ('ሀ', b'ethiopic_sign1'),
+        ('ሮ', b'ethiopic_sign2'),
+        ('ቄ', b'ethiopic_sign3')
     )
 
     def dawg(self):
@@ -33,6 +36,7 @@ class TestBytesDAWG(object):
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
+        assert d['\u1244'] == [b'ethiopic_sign3']
 
 
     def test_getitem_missing(self):
@@ -52,11 +56,46 @@ class TestBytesDAWG(object):
 
     def test_keys(self):
         d = self.dawg()
-        assert d.keys() == ['bar', 'foo', 'foo', 'foobar']
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar', 'ሀ', 'ሮ', 'ቄ']
 
     def test_iterkeys(self):
         d = self.dawg()
         assert list(d.iterkeys()) == d.keys()
+
+    def test_children(self):
+        d = self.dawg()
+        assert d.children('foob') == [('fooba', False)]
+        assert d.children('fooba') == [('foobar', True)]
+        assert d.children('fo') == [('foo', True)]
+        assert d.children('foo') == [('foob', False)]
+
+    def test_iterchildren(self):
+        d = self.dawg()
+        assert list(d.iterchildren('foob')) == [('fooba', False)]
+        assert list(d.iterchildren('fooba')) == [('foobar', True)]
+        assert list(d.iterchildren('fo')) == [('foo', True)]
+        assert list(d.iterchildren('foo')) == [('foob', False)]
+
+    def test_children_data(self):
+        d = self.dawg()
+        assert d.children_data('foob') == [('fooba', None)]
+        assert d.children_data('fooba') == [('foobar', b'data4')]
+        assert d.children_data('fo') == [('foo', b'data1'), ('foo', b'data3')]
+        assert d.children_data('foobar') == []
+        assert d.children_data('foo') == [('foob', None)]
+        assert set(d.children_data('')) == set([('b', None), ('f', None),
+                                             ('ሀ', b'ethiopic_sign1'),
+                                             ('ሮ', b'ethiopic_sign2'),
+                                             ('ቄ', b'ethiopic_sign3')])
+
+    def test_iterchildren_data(self):
+        d = self.dawg()
+        assert list(d.iterchildren_data('foob')) == [('fooba', None)]
+        assert list(d.iterchildren_data('fooba')) == [('foobar', b'data4')]
+        assert list(d.iterchildren_data('fo')) == \
+               [('foo', b'data1'), ('foo', b'data3')]
+        assert list(d.iterchildren_data('foobar')) == []
+        assert list(d.iterchildren_data('foo')) == [('foob', None)]
 
     def test_key_completion(self):
         d = self.dawg()
@@ -65,6 +104,7 @@ class TestBytesDAWG(object):
     def test_items(self):
         d = self.dawg()
         assert d.items() == sorted(self.DATA)
+        assert d.items('not a real key') == []
 
     def test_iteritems(self):
         d = self.dawg()
@@ -75,6 +115,8 @@ class TestBytesDAWG(object):
     def test_items_completion(self):
         d = self.dawg()
         assert d.items('foob') == [('foobar', b'data4')]
+        assert d.items('foo') == [('foo', b'data1'), ('foo', b'data3'),
+                                  ('foobar', b'data4')]
 
     def test_prefixes(self):
         d = self.dawg()
@@ -120,6 +162,19 @@ class TestRecordDAWG(object):
     def test_record_items(self):
         d = self.dawg()
         assert d.items() == sorted(self.STRUCTURED_DATA)
+
+    def test_children_data(self):
+        d = self.dawg()
+        assert d.children_data('foob') == [('fooba', None)]
+        assert d.children_data('fooba') == [('foobar', (6, 3, 0))]
+        assert d.children_data('fo') == [('foo', (3, 2, 1)), ('foo', (3, 2, 256))]
+
+    def test_iterchildren_data(self):
+        d = self.dawg()
+        assert list(d.iterchildren_data('foob')) == [('fooba', None)]
+        assert list(d.iterchildren_data('fooba')) == [('foobar', (6, 3, 0))]
+        assert list(d.iterchildren_data('fo')) == [('foo', (3, 2, 1)),
+                                                ('foo', (3, 2, 256))]
 
     def test_record_keys(self):
         d = self.dawg()

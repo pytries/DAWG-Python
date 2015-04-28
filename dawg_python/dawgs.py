@@ -141,6 +141,39 @@ class CompletionDAWG(DAWG):
 
         return res
 
+    def children(self, prefix=""):
+        b_prefix = prefix.encode('utf8')
+        res = []
+
+        index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
+        if index is None:
+            return res
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, b_prefix):
+            return res
+
+        res.append(edge_follower.get_cur_child())
+        while edge_follower.next():
+            res.append(edge_follower.get_cur_child())
+
+        return res
+
+    def iterchildren(self, prefix=""):
+        b_prefix = prefix.encode('utf8')
+
+        index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
+        if index is None:
+            return
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, b_prefix):
+            return
+
+        yield edge_follower.get_cur_child()
+        while edge_follower.next():
+            yield edge_follower.get_cur_child()
+
     def iterkeys(self, prefix=""):
         b_prefix = prefix.encode('utf8')
         index = self.dct.follow_bytes(b_prefix, self.dct.ROOT)
@@ -279,15 +312,14 @@ class BytesDAWG(CompletionDAWG):
             yield u_key
 
     def items(self, prefix=""):
+        index = self.dct.ROOT
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
-        res = []
-
-        index = self.dct.ROOT
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
             if not index:
-                return res
+                return []
+        res = []
 
         completer = wrapper.Completer(self.dct, self.guide)
         completer.start(index, prefix)
@@ -301,10 +333,9 @@ class BytesDAWG(CompletionDAWG):
         return res
 
     def iteritems(self, prefix=""):
+        index = self.dct.ROOT
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
-
-        index = self.dct.ROOT
         if prefix:
             index = self.dct.follow_bytes(prefix, index)
             if not index:
@@ -315,9 +346,95 @@ class BytesDAWG(CompletionDAWG):
 
         while completer.next():
             key, value = completer.key.split(self._payload_separator)
-            item = (key.decode('utf8'), a2b_base64(bytes(value))) # bytes() cast is a python 2.6 fix
+            # bytes() cast is a python 2.6 fix
+            item = (key.decode('utf8'), a2b_base64(bytes(value)))
             yield item
 
+    def children(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+        res = []
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
+                                             self._payload_separator)
+        if not edge_follower.start(index, prefix):
+            return res
+
+        val = True if self._follow_key(bytes(edge_follower.key)) else False
+        res.append((edge_follower.decoded_key, val))
+        while edge_follower.next():
+            val = True if self._follow_key(bytes(edge_follower.key)) else False
+            res.append((edge_follower.decoded_key, val))
+        return res
+
+    def iterchildren(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
+                                             self._payload_separator)
+        if not edge_follower.start(index, prefix):
+            return
+
+        val = True if self._follow_key(bytes(edge_follower.key)) else False
+        yield (edge_follower.decoded_key, val)
+        while edge_follower.next():
+            val = True if self._follow_key(bytes(edge_follower.key)) else False
+            yield (edge_follower.decoded_key, val)
+
+    def children_data(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+        res = []
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
+                                             self._payload_separator)
+        if not edge_follower.start(index, prefix):
+            return res
+
+        vals = self.b_get_value(bytes(edge_follower.key)) or [None]
+        res.extend([(edge_follower.decoded_key, val) for val in vals])
+        while edge_follower.next():
+            vals = self.b_get_value(bytes(edge_follower.key)) or [None]
+            res.extend([(edge_follower.decoded_key, val) for val in vals])
+        return res
+
+    def iterchildren_data(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide,
+                                             self._payload_separator)
+        if not edge_follower.start(index, prefix):
+            return
+
+        vals = self.b_get_value(bytes(edge_follower.key)) or [None]
+        for val in vals:
+            yield (edge_follower.decoded_key, val)
+        while edge_follower.next():
+            vals = self.b_get_value(bytes(edge_follower.key)) or [None]
+            for val in vals:
+                yield (edge_follower.decoded_key, val)
 
     def _has_value(self, index):
         return self.dct.follow_bytes(PAYLOAD_SEPARATOR, index)
@@ -367,7 +484,6 @@ class BytesDAWG(CompletionDAWG):
         unicode strings.
         """
         return self._similar_items("", key, self.dct.ROOT, replaces)
-
 
     def _similar_item_values(self, start_pos, key, index, replace_chars):
         res = []
@@ -424,14 +540,16 @@ class RecordDAWG(BytesDAWG):
 
     def items(self, prefix=""):
         res = super(RecordDAWG, self).items(prefix)
+        print("items data:")
+        print(res)
         return [(key, self._struct.unpack(val)) for (key, val) in res]
 
     def iteritems(self, prefix=""):
         res = super(RecordDAWG, self).iteritems(prefix)
         return ((key, self._struct.unpack(val)) for (key, val) in res)
 
-
 LOOKUP_ERROR = -1
+
 
 class IntDAWG(DAWG):
     """
@@ -464,6 +582,80 @@ class IntCompletionDAWG(CompletionDAWG, IntDAWG):
     Dict-like class based on DAWG.
     It can store integer values for unicode keys and support key completion.
     """
+    def children(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+        res = []
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, prefix):
+            return res
+
+        res.append((edge_follower.decoded_key, edge_follower.has_value()))
+        while edge_follower.next():
+            res.append((edge_follower.decoded_key, edge_follower.has_value()))
+
+        return res
+
+    def iterchildren(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, prefix):
+            return
+
+        yield (edge_follower.decoded_key, edge_follower.has_value())
+        while edge_follower.next():
+            yield (edge_follower.decoded_key, edge_follower.has_value())
+
+    def children_data(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+        res = []
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, prefix):
+            return res
+
+        res.append((edge_follower.decoded_key, edge_follower.value()))
+        while edge_follower.next():
+            res.append((edge_follower.decoded_key, edge_follower.value()))
+
+        return res
+
+    def iterchildren_data(self, prefix=""):
+        index = self.dct.ROOT
+        if not isinstance(prefix, bytes):
+            prefix = prefix.encode('utf8')
+        if prefix:
+            index = self.dct.follow_bytes(prefix, index)
+            if not index:
+                return
+
+        edge_follower = wrapper.EdgeFollower(self.dct, self.guide)
+        if not edge_follower.start(index, prefix):
+            return
+
+        yield (edge_follower.decoded_key, edge_follower.value())
+        while edge_follower.next():
+            yield (edge_follower.decoded_key, edge_follower.value())
+
     def items(self, prefix=""):
         if not isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
