@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 import struct
 import array
-import pdb
 
 from . import units
 from .compat import int_from_byte
@@ -148,8 +147,7 @@ class EdgeFollower(object):
         if lvls is None:
             lvls = levels_to_descend(child_label)
         if lvls > 0:
-            pdb.set_trace()
-            for i in xrange(lvls):
+            for i in reversed(xrange(lvls)):
                 next_child_label = self._guide.child(index)
                 prev_index = index
                 index = self._dic.follow_char(next_child_label, index)
@@ -171,10 +169,12 @@ class EdgeFollower(object):
             parent_index = self._parent_index
         sibling_label = self._guide.sibling(sib_index)
         sib_index = self._dic.follow_char(sibling_label, parent_index)
-        #pdb.set_trace()
         if not sib_index:
-            return False
-        self._sib_index_stack.append((sib_index, None, None, bytearray()))
+            return self.next()
+        if lvls == 0:
+            lvls = None
+        self._sib_index_stack.append(
+            (sib_index, lvls, parent_index, part_key[:]))
         if sibling_label == self._payload_separator:
             return self.next()
         self.key = self.key[:self.base_key_len]
