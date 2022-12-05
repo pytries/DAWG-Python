@@ -40,15 +40,15 @@ class DAWG(object):
             b_step = key[word_pos].encode('utf8')
 
             if b_step in replace_chars:
-                next_index = index
-                b_replace_char, u_replace_char = replace_chars[b_step]
+                for (b_replace_char, u_replace_char) in replace_chars[b_step]:
+                    next_index = index
 
-                next_index = self.dct.follow_bytes(b_replace_char, next_index)
+                    next_index = self.dct.follow_bytes(b_replace_char, next_index)
 
-                if next_index is not None:
-                    prefix = current_prefix + key[start_pos:word_pos] + u_replace_char
-                    extra_keys = self._similar_keys(prefix, key, next_index, replace_chars)
-                    res += extra_keys
+                    if next_index:
+                        prefix = current_prefix + key[start_pos:word_pos] + u_replace_char
+                        extra_keys = self._similar_keys(prefix, key, next_index, replace_chars)
+                        res += extra_keys
 
             index = self.dct.follow_bytes(b_step, index)
             if index is None:
@@ -69,7 +69,7 @@ class DAWG(object):
 
         ``replaces`` is an object obtained from
         ``DAWG.compile_replaces(mapping)`` where mapping is a dict
-        that maps single-char unicode sitrings to another single-char
+        that maps single-char unicode strings to (one or more) single-char
         unicode strings.
 
         This may be useful e.g. for handling single-character umlauts.
@@ -80,13 +80,17 @@ class DAWG(object):
     def compile_replaces(cls, replaces):
 
         for k,v in replaces.items():
-            if len(k) != 1 or len(v) != 1:
-                raise ValueError("Keys and values must be single-char unicode strings.")
+            if len(k) != 1:
+                raise ValueError("Keys must be single-char unicode strings.")
+            if (isinstance(v, str) and len(v) != 1):
+                raise ValueError("Values must be single-char unicode strings or non-empty lists of such.")
+            if isinstance(v, list) and (any(len(v_entry) != 1 for v_entry in v) or len(v) < 1):
+                raise ValueError("Values must be single-char unicode strings or non-empty lists of such.")
 
         return dict(
             (
                 k.encode('utf8'),
-                (v.encode('utf8'), v)
+                [(v_entry.encode('utf8'), v_entry) for v_entry in v]
             )
             for k, v in replaces.items()
         )
@@ -333,14 +337,15 @@ class BytesDAWG(CompletionDAWG):
             b_step = key[word_pos].encode('utf8')
 
             if b_step in replace_chars:
-                next_index = index
-                b_replace_char, u_replace_char = replace_chars[b_step]
+                for (b_replace_char, u_replace_char) in replace_chars[b_step]:
+                    next_index = index
 
-                next_index = self.dct.follow_bytes(b_replace_char, next_index)
-                if next_index:
-                    prefix = current_prefix + key[start_pos:word_pos] + u_replace_char
-                    extra_items = self._similar_items(prefix, key, next_index, replace_chars)
-                    res += extra_items
+                    next_index = self.dct.follow_bytes(b_replace_char, next_index)
+
+                    if next_index:
+                        prefix = current_prefix + key[start_pos:word_pos] + u_replace_char
+                        extra_items = self._similar_items(prefix, key, next_index, replace_chars)
+                        res += extra_items
 
             index = self.dct.follow_bytes(b_step, index)
             if not index:
@@ -363,7 +368,7 @@ class BytesDAWG(CompletionDAWG):
 
         ``replaces`` is an object obtained from
         ``DAWG.compile_replaces(mapping)`` where mapping is a dict
-        that maps single-char unicode sitrings to another single-char
+        that maps single-char unicode strings to (one or more) single-char
         unicode strings.
         """
         return self._similar_items("", key, self.dct.ROOT, replaces)
@@ -406,7 +411,7 @@ class BytesDAWG(CompletionDAWG):
 
         ``replaces`` is an object obtained from
         ``DAWG.compile_replaces(mapping)`` where mapping is a dict
-        that maps single-char unicode sitrings to another single-char
+        that maps single-char unicode strings to (one or more) single-char
         unicode strings.
         """
         return self._similar_item_values(0, key, self.dct.ROOT, replaces)
