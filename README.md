@@ -1,8 +1,7 @@
 # DAWG-Python
 
 [![Python tests](https://github.com/pymorphy2-fork/DAWG-Python/actions/workflows/python-tests.yml/badge.svg)](https://github.com/pymorphy2-fork/DAWG-Python/actions/workflows/python-tests.yml)
-
-[![image](https://coveralls.io/repos/kmike/DAWG-Python/badge.png?branch=master)](https://coveralls.io/r/kmike/DAWG-Python)
+[![Coverage Status](https://coveralls.io/repos/github/pymorphy2-fork/DAWG-Python/badge.svg?branch=master)](https://coveralls.io/github/pymorphy2-fork/DAWG-Python?branch=master)
 
 This pure-python package provides read-only access for files created by
 [dawgdic](https://code.google.com/p/dawgdic/) C++ library and
