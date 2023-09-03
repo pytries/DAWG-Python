@@ -5,7 +5,7 @@ setup(
     name="DAWG-Python",
     version="0.7.2",
     description="Pure-python reader for DAWGs (DAFSAs) created by dawgdic C++ library or DAWG Python extension.",
-    long_description = open('README.rst').read() + "\n\n"+ open('CHANGES.rst').read(),
+    long_description = open('README.md').read() + "\n\n"+ open('CHANGES.md').read(),
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     url='https://github.com/kmike/DAWG-Python/',
