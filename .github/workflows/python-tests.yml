@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "pypy"]
 
     steps:
     - uses: actions/checkout@v3
@@ -38,6 +38,10 @@ jobs:
 
     - name: Install dev dependencies
       run: pip install flake8 dawg2 pytest pytest-cov coveralls
+    
+    - name: Install dawg2
+      if: ${{ matrix.python-version }} != "pypy"
+      run: pip install dawg2
 
     - name: Lint with flake8
       run: |
