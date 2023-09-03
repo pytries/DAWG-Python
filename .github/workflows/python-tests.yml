@@ -37,7 +37,7 @@ jobs:
       run: pip install -e .
 
     - name: Install dev dependencies
-      run: pip install flake8 pytest pytest-cov coveralls
+      run: pip install flake8 dawg2 pytest pytest-cov coveralls
 
     - name: Lint with flake8
       run: |
