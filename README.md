@@ -1,6 +1,6 @@
 # DAWG-Python
 
-[![image](https://travis-ci.org/kmike/DAWG-Python.png?branch=master)](https://travis-ci.org/kmike/DAWG-Python)
+[![Python tests](https://github.com/pymorphy2-fork/DAWG-Python/actions/workflows/python-tests.yml/badge.svg)](https://github.com/pymorphy2-fork/DAWG-Python/actions/workflows/python-tests.yml)
 
 [![image](https://coveralls.io/repos/kmike/DAWG-Python/badge.png?branch=master)](https://coveralls.io/r/kmike/DAWG-Python)
 
