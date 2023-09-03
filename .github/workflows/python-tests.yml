@@ -39,10 +39,6 @@ jobs:
     - name: Install dev dependencies
       run: pip install flake8 dawg2 pytest pytest-cov coveralls
 
-    - name: Install dawg2
-      if: startsWith(${{ matrix.python-version }}, "pypy")
-      run: pip install dawg2
-
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
