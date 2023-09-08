@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
 import pickle
 import tempfile
 
 import pytest
-import dawg_python
 
+import dawg_python
 from .utils import data_path
+
 
 def test_c_dawg_contains():
     dawg = pytest.importorskip("dawg")  # import dawg
@@ -63,7 +62,7 @@ class TestCompletionDAWG(object):
         with open(path, 'w') as f:
             f.write('foo')
 
-        with pytest.raises(Exception) as e:
+        with pytest.raises(Exception):
             d.load(path)
 
     def test_empty_dawg(self):
