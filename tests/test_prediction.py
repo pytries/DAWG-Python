@@ -25,19 +25,16 @@ class TestPrediction:
 
     SUITE_ITEMS = [
         (
-            it[0], # key
-            [
-                (w, [(len(w),)]) # item, value pair
-                for w in it[1]
-            ]
+            it[0],  # key
+            [(w, [(len(w),)]) for w in it[1]],  # item, value pair
         )
         for it in SUITE
     ]
 
     SUITE_VALUES = [
         (
-            it[0], # key
-            [[(len(w),)] for w in it[1]]
+            it[0],  # key
+            [[(len(w),)] for w in it[1]],
         )
         for it in SUITE
     ]

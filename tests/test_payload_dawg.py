@@ -10,7 +10,7 @@ class TestBytesDAWG:
         ('foo', b'data1'),
         ('bar', b'data2'),
         ('foo', b'data3'),
-        ('foobar', b'data4')
+        ('foobar', b'data4'),
     )
 
     def dawg(self):
@@ -83,10 +83,10 @@ class TestBytesDAWG:
 class TestRecordDAWG:
 
     STRUCTURED_DATA = (
-        ('foo',     (3, 2, 256)),
-        ('bar',     (3, 1, 0)),
-        ('foo',     (3, 2, 1)),
-        ('foobar',  (6, 3, 0))
+        ('foo', (3, 2, 256)),
+        ('bar', (3, 1, 0)),
+        ('foo', (3, 2, 1)),
+        ('foobar', (6, 3, 0)),
     )
 
     def dawg(self):
@@ -120,7 +120,7 @@ class TestRecordDAWG:
 
     def test_record_keys(self):
         d = self.dawg()
-        assert d.keys() == ['bar', 'foo', 'foo', 'foobar',]
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar']
 
     def test_record_keys_prefix(self):
         d = self.dawg()

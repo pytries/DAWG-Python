@@ -8,6 +8,7 @@ class Dictionary:
     """
     Dictionary class for retrieval and binary I/O.
     """
+
     def __init__(self):
         self._units = array.array("I")
 
@@ -80,21 +81,20 @@ class Guide:
         self._units = array.array("B")
 
     def child(self, index):
-        return self._units[index*2]
+        return self._units[index * 2]
 
     def sibling(self, index):
-        return self._units[index*2 + 1]
+        return self._units[index * 2 + 1]
 
     def read(self, fp):
         base_size = struct.unpack("=I", fp.read(4))[0]
-        self._units.fromfile(fp, base_size*2)
+        self._units.fromfile(fp, base_size * 2)
 
     def size(self):
         return len(self._units)
 
 
 class Completer:
-
     def __init__(self, dic=None, guide=None):
         self._dic = dic
         self._guide = guide
@@ -134,7 +134,7 @@ class Completer:
                     # Moves to the previous node.
                     if len(self.key) > 0:
                         self.key.pop()
-                        #self.key[-1] = 0
+                        # self.key[-1] = 0
 
                     self._index_stack.pop()
                     if not self._index_stack:

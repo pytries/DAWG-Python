@@ -9,10 +9,7 @@ from .utils import data_path, words100k
 def random_words(num):
     russian = 'абвгдеёжзиклмнопрстуфхцчъыьэюя'
     alphabet = f'{russian}{string.ascii_letters}'
-    return [
-        "".join([random.choice(alphabet) for x in range(random.randint(1, 15))])
-        for _ in range(num)
-    ]
+    return ["".join([random.choice(alphabet) for x in range(random.randint(1, 15))]) for _ in range(num)]
 
 
 def truncated_words(words):
@@ -123,11 +120,10 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
                 bench(
                     f'{struct_name}.{meth} ({name})',
                     timeit.Timer(
-                        f"for word in {data}:\n"
-                        f"   data.{meth}(word)",
-                        setup
+                        f"for word in {data}:\n   data.{meth}(word)",
+                        setup,
                     ),
-                    runs=3
+                    runs=3,
                 )
 
         _bench_data = [
@@ -143,11 +139,11 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
                     f'{struct_name}.{meth}(prefix="{xxx}"), {avg}',
                     timeit.Timer(
                         f"for word in {data}: data.{meth}(word)",
-                        setup
+                        setup,
                     ),
                     'K ops/sec',
                     op_count=1,
-                    runs=3
+                    runs=3,
                 )
 
             for meth in ['iterkeys', 'iteritems']:
@@ -155,11 +151,11 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
                     f'{struct_name}.{meth}(prefix="{xxx}"), {avg}',
                     timeit.Timer(
                         f"for word in {data}: list(data.{meth}(word))",
-                        setup
+                        setup,
                     ),
                     'K ops/sec',
                     op_count=1,
-                    runs=3
+                    runs=3,
                 )
 
 

@@ -7,7 +7,6 @@ dawg = dawg_python.Dictionary.load(data_path('large', 'int_dawg.dawg'))
 
 
 class TestDictionary:
-
     def test_contains(self):
         for word in words:
             assert dawg.contains(word.encode('utf8'))

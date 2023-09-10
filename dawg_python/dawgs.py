@@ -84,7 +84,7 @@ class DAWG:
         return dict(
             (
                 k.encode('utf8'),
-                (v.encode('utf8'), v)
+                (v.encode('utf8'), v),
             )
             for k, v in replaces.items()
         )
@@ -290,9 +290,7 @@ class BytesDAWG(CompletionDAWG):
 
         while completer.next():
             key, value = completer.key.split(self._payload_separator)
-            res.append(
-                (key.decode('utf8'), a2b_base64(value))
-            )
+            res.append((key.decode('utf8'), a2b_base64(value)))
 
         return res
 
@@ -476,9 +474,7 @@ class IntCompletionDAWG(CompletionDAWG, IntDAWG):
         completer.start(index, prefix)
 
         while completer.next():
-            res.append(
-                (completer.key.decode('utf8'), completer.value())
-            )
+            res.append((completer.key.decode('utf8'), completer.value()))
 
         return res
 
