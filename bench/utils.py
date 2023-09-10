@@ -1,4 +1,3 @@
-import os
 import zipfile
 from pathlib import Path
 
@@ -9,7 +8,7 @@ def data_path(*args):
     """
     Returns a path to dev data
     """
-    return os.path.join(DEV_DATA_PATH, *args)
+    return DEV_DATA_PATH.joinpath(*args)
 
 
 def words100k():
