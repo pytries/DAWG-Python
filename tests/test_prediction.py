@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
 import pytest
-import dawg_python
 
+import dawg_python
 from .utils import data_path
 
-class TestPrediction(object):
+
+class TestPrediction:
 
     REPLACES = dawg_python.DAWG.compile_replaces({'Е': 'Ё'})
 
@@ -45,9 +44,7 @@ class TestPrediction(object):
 
     def record_dawg(self):
         path = data_path("small", "prediction-record.dawg")
-        return dawg_python.RecordDAWG(str("=H")).load(path)
-
-
+        return dawg_python.RecordDAWG("=H").load(path)
 
     @pytest.mark.parametrize(("word", "prediction"), SUITE)
     def test_dawg_prediction(self, word, prediction):

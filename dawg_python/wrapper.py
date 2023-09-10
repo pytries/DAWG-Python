@@ -4,12 +4,12 @@ import struct
 from . import units
 
 
-class Dictionary(object):
+class Dictionary:
     """
     Dictionary class for retrieval and binary I/O.
     """
     def __init__(self):
-        self._units = array.array(str("I"))
+        self._units = array.array("I")
 
     ROOT = 0
     "Root index"
@@ -26,7 +26,7 @@ class Dictionary(object):
 
     def read(self, fp):
         """Reads a dictionary from an input stream."""
-        base_size = struct.unpack(str("=I"), fp.read(4))[0]
+        base_size = struct.unpack("=I", fp.read(4))[0]
         self._units.fromfile(fp, base_size)
 
     def contains(self, key):
@@ -72,12 +72,12 @@ class Dictionary(object):
         return dawg
 
 
-class Guide(object):
+class Guide:
 
     ROOT = 0
 
     def __init__(self):
-        self._units = array.array(str("B"))
+        self._units = array.array("B")
 
     def child(self, index):
         return self._units[index*2]
@@ -86,14 +86,14 @@ class Guide(object):
         return self._units[index*2 + 1]
 
     def read(self, fp):
-        base_size = struct.unpack(str("=I"), fp.read(4))[0]
+        base_size = struct.unpack("=I", fp.read(4))[0]
         self._units.fromfile(fp, base_size*2)
 
     def size(self):
         return len(self._units)
 
 
-class Completer(object):
+class Completer:
 
     def __init__(self, dic=None, guide=None):
         self._dic = dic

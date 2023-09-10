@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import pytest
+
 import dawg_python
 from .utils import data_path
 
-class TestBytesDAWG(object):
+
+class TestBytesDAWG:
 
     DATA = (
         ('foo', b'data1'),
@@ -26,14 +25,12 @@ class TestBytesDAWG(object):
         assert 'x' not in d
         assert 'fo' not in d
 
-
     def test_getitem(self):
         d = self.dawg()
 
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
-
 
     def test_getitem_missing(self):
         d = self.dawg()
@@ -83,7 +80,7 @@ class TestBytesDAWG(object):
         assert d.prefixes("bar") == ["bar"]
 
 
-class TestRecordDAWG(object):
+class TestRecordDAWG:
 
     STRUCTURED_DATA = (
         ('foo',     (3, 2, 256)),

@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import struct
 from binascii import a2b_base64
 
 from . import wrapper
 
 
-class DAWG(object):
+class DAWG:
     """
     Base DAWG wrapper.
     """
@@ -121,7 +118,7 @@ class CompletionDAWG(DAWG):
     """
 
     def __init__(self):
-        super(CompletionDAWG, self).__init__()
+        super().__init__()
         self.guide = None
 
     def keys(self, prefix=""):
@@ -411,20 +408,20 @@ class BytesDAWG(CompletionDAWG):
 
 class RecordDAWG(BytesDAWG):
     def __init__(self, fmt, payload_separator=PAYLOAD_SEPARATOR):
-        super(RecordDAWG, self).__init__(payload_separator)
+        super().__init__(payload_separator)
         self._struct = struct.Struct(str(fmt))
         self.fmt = fmt
 
     def _value_for_index(self, index):
-        value = super(RecordDAWG, self)._value_for_index(index)
+        value = super()._value_for_index(index)
         return [self._struct.unpack(val) for val in value]
 
     def items(self, prefix=""):
-        res = super(RecordDAWG, self).items(prefix)
+        res = super().items(prefix)
         return [(key, self._struct.unpack(val)) for (key, val) in res]
 
     def iteritems(self, prefix=""):
-        res = super(RecordDAWG, self).iteritems(prefix)
+        res = super().iteritems(prefix)
         return ((key, self._struct.unpack(val)) for (key, val) in res)
 
 

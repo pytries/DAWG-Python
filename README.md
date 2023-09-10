@@ -10,7 +10,7 @@ This pure-python package provides read-only access for files created by
 This package is not capable of creating DAWGs. It works with DAWGs built
 by [dawgdic](https://code.google.com/p/dawgdic/) C++ library or
 [DAWG](https://github.com/kmike/DAWG) Python extension module. The main
-purpose of DAWG-Python is to provide an access to DAWGs without
+purpose of DAWG-Python is to provide access to DAWGs without
 requiring compiled extensions. It is also quite fast under PyPy (see
 benchmarks).
 
@@ -41,7 +41,7 @@ intentionally unsupported.
 
 # Benchmarks
 
-Benchmark results (100k unicode words, integer values (lenghts of the
+Benchmark results (100k unicode words, integer values (lengths of the
 words), PyPy 1.9, macbook air i5 1.8 Ghz):
 
     dict __getitem__ (hits):        11.090M ops/sec
@@ -100,8 +100,8 @@ Contributions are welcome!
 
 # Contributing
 
-Development happens at github: <https://github.com/kmike/DAWG-Python>
-Issue tracker: <https://github.com/kmike/DAWG-Python/issues>
+Development happens at GitHub: <https://github.com/pymorphy2-fork/DAWG-Python>
+Issue tracker: <https://github.com/pymorphy2-fork/DAWG-Python/issues>
 
 Feel free to submit ideas, bugs or pull requests.
 
@@ -111,12 +111,11 @@ Make sure [tox](http://tox.testrun.org) is installed and run
 
     $ tox
 
-from the source checkout. Tests should pass under python 2.6, 2.7, 3.2,
-3.3, 3.4 and PyPy \>= 1.9.
+from the source checkout. Tests should pass under python 3.8, 3.9, 3.10, 3.11 and PyPy3 \>= 7.3.
 
 In order to run benchmarks, type
 
-    $ tox -c bench.ini -e pypy
+    $ pypy3 -m bench.speed
 
 This runs benchmarks under PyPy (they are about 50x slower under
 CPython).

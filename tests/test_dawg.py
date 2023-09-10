@@ -25,7 +25,7 @@ def test_c_dawg_contains():
     assert d.contains(b'bar')
 
 
-class TestCompletionDAWG(object):
+class TestCompletionDAWG:
     keys = ['f', 'bar', 'foo', 'foobar']
 
     def dawg(self):
@@ -76,8 +76,7 @@ class TestCompletionDAWG(object):
         assert d.prefixes("bar") == ["bar"]
 
 
-
-class TestIntDAWG(object):
+class TestIntDAWG:
     payload = {'foo': 1, 'bar': 5, 'foobar': 3}
 
     def dawg(self):

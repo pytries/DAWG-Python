@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Unit of a dictionary
 """
-from __future__ import absolute_import
-
 PRECISION_MASK = 0xFFFFFFFF
 
 OFFSET_MAX = 1 << 21
