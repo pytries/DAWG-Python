@@ -1,46 +1,44 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-import struct
 import array
+import struct
 
 from . import units
-from .compat import int_from_byte
 
 
-class Dictionary(object):
+class Dictionary:
     """
     Dictionary class for retrieval and binary I/O.
     """
+
     def __init__(self):
-        self._units = array.array(str("I"))
+        self._units = array.array("I")
 
     ROOT = 0
     "Root index"
 
     def has_value(self, index):
-        "Checks if a given index is related to the end of a key."
+        """Checks if a given index is related to the end of a key."""
         return units.has_leaf(self._units[index])
 
     def value(self, index):
-        "Gets a value from a given index."
+        """Gets a value from a given index."""
         offset = units.offset(self._units[index])
         value_index = (index ^ offset) & units.PRECISION_MASK
         return units.value(self._units[value_index])
 
     def read(self, fp):
-        "Reads a dictionary from an input stream."
-        base_size = struct.unpack(str("=I"), fp.read(4))[0]
+        """Reads a dictionary from an input stream."""
+        base_size = struct.unpack("=I", fp.read(4))[0]
         self._units.fromfile(fp, base_size)
 
     def contains(self, key):
-        "Exact matching."
+        """Exact matching."""
         index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return False
         return self.has_value(index)
 
     def find(self, key):
-        "Exact matching (returns value)"
+        """Exact matching (returns value)"""
         index = self.follow_bytes(key, self.ROOT)
         if index is None:
             return -1
@@ -49,7 +47,7 @@ class Dictionary(object):
         return self.value(index)
 
     def follow_char(self, label, index):
-        "Follows a transition"
+        """Follows a transition"""
         offset = units.offset(self._units[index])
         next_index = (index ^ offset ^ label) & units.PRECISION_MASK
 
@@ -59,9 +57,9 @@ class Dictionary(object):
         return next_index
 
     def follow_bytes(self, s, index):
-        "Follows transitions."
+        """Follows transitions."""
         for ch in s:
-            index = self.follow_char(int_from_byte(ch), index)
+            index = self.follow_char(ch, index)
             if index is None:
                 return None
 
@@ -75,29 +73,28 @@ class Dictionary(object):
         return dawg
 
 
-class Guide(object):
+class Guide:
 
     ROOT = 0
 
     def __init__(self):
-        self._units = array.array(str("B"))
+        self._units = array.array("B")
 
     def child(self, index):
-        return self._units[index*2]
+        return self._units[index * 2]
 
     def sibling(self, index):
-        return self._units[index*2 + 1]
+        return self._units[index * 2 + 1]
 
     def read(self, fp):
-        base_size = struct.unpack(str("=I"), fp.read(4))[0]
-        self._units.fromfile(fp, base_size*2)
+        base_size = struct.unpack("=I", fp.read(4))[0]
+        self._units.fromfile(fp, base_size * 2)
 
     def size(self):
         return len(self._units)
 
 
-class Completer(object):
-
+class Completer:
     def __init__(self, dic=None, guide=None):
         self._dic = dic
         self._guide = guide
@@ -137,7 +134,7 @@ class Completer(object):
                     # Moves to the previous node.
                     if len(self.key) > 0:
                         self.key.pop()
-                        #self.key[-1] = 0
+                        # self.key[-1] = 0
 
                     self._index_stack.pop()
                     if not self._index_stack:

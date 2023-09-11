@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import pytest
+
 import dawg_python
 from .utils import data_path
 
-class TestBytesDAWG(object):
+
+class TestBytesDAWG:
 
     DATA = (
         ('foo', b'data1'),
         ('bar', b'data2'),
         ('foo', b'data3'),
-        ('foobar', b'data4')
+        ('foobar', b'data4'),
     )
 
     def dawg(self):
@@ -26,14 +25,12 @@ class TestBytesDAWG(object):
         assert 'x' not in d
         assert 'fo' not in d
 
-
     def test_getitem(self):
         d = self.dawg()
 
         assert d['foo'] == [b'data1', b'data3']
         assert d['bar'] == [b'data2']
         assert d['foobar'] == [b'data4']
-
 
     def test_getitem_missing(self):
         d = self.dawg()
@@ -83,13 +80,13 @@ class TestBytesDAWG(object):
         assert d.prefixes("bar") == ["bar"]
 
 
-class TestRecordDAWG(object):
+class TestRecordDAWG:
 
     STRUCTURED_DATA = (
-        ('foo',     (3, 2, 256)),
-        ('bar',     (3, 1, 0)),
-        ('foo',     (3, 2, 1)),
-        ('foobar',  (6, 3, 0))
+        ('foo', (3, 2, 256)),
+        ('bar', (3, 1, 0)),
+        ('foo', (3, 2, 1)),
+        ('foobar', (6, 3, 0)),
     )
 
     def dawg(self):
@@ -123,7 +120,7 @@ class TestRecordDAWG(object):
 
     def test_record_keys(self):
         d = self.dawg()
-        assert d.keys() == ['bar', 'foo', 'foo', 'foobar',]
+        assert d.keys() == ['bar', 'foo', 'foo', 'foobar']
 
     def test_record_keys_prefix(self):
         d = self.dawg()
