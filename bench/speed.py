@@ -1,34 +1,27 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals, division
-import os
-import sys
 import random
 import string
 import timeit
 
 import dawg_python
+from .utils import data_path, words100k
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-
-from utils import data_path, words100k
 
 def random_words(num):
     russian = 'абвгдеёжзиклмнопрстуфхцчъыьэюя'
-    alphabet = '%s%s' % (russian, string.ascii_letters)
-    return [
-        "".join([random.choice(alphabet) for x in range(random.randint(1,15))])
-        for y in range(num)
-    ]
+    alphabet = f'{russian}{string.ascii_letters}'
+    return ["".join([random.choice(alphabet) for x in range(random.randint(1, 15))]) for _ in range(num)]
+
 
 def truncated_words(words):
     return [word[:3] for word in words]
 
+
 def prefixes1k(words, prefix_len):
     words = [w for w in words if len(w) >= prefix_len]
-    every_nth = int(len(words)/1000)
+    every_nth = int(len(words) / 1000)
     _words = [w[:prefix_len] for w in words[::every_nth]]
     return _words[:1000]
+
 
 WORDS100k = words100k()
 MIXED_WORDS100k = truncated_words(WORDS100k)
@@ -50,25 +43,29 @@ def bench(name, timer, descr='M ops/sec', op_count=0.1, repeats=3, runs=5):
             times.append(timer.timeit(repeats))
 
         def op_time(time):
-            return op_count*repeats / time
+            return op_count * repeats / time
 
-        val = "%0.3f%s" % (op_time(min(times)), descr)
+        val = f"{op_time(min(times)):0.3f}{descr}"
         format_result(name, val)
-    except (AttributeError, TypeError) as e:
+    except (AttributeError, TypeError):
         format_result(name, "not supported")
-        #print(e)
+
 
 def load_dawg():
     return dawg_python.DAWG().load(data_path('large', 'dawg.dawg'))
 
+
 def load_bytes_dawg():
     return dawg_python.BytesDAWG().load(data_path('large', 'bytes_dawg.dawg'))
 
+
 def load_record_dawg():
-    return dawg_python.RecordDAWG(str('<H')).load(data_path('large', 'record_dawg.dawg'))
+    return dawg_python.RecordDAWG('<H').load(data_path('large', 'record_dawg.dawg'))
+
 
 def load_int_dawg():
     return dawg_python.IntDAWG().load(data_path('large', 'int_dawg.dawg'))
+
 
 def benchmark():
     print('\n====== Benchmarks (100k unique unicode words) =======\n')
@@ -81,7 +78,7 @@ def benchmark():
         ('__contains__ (misses)', "for word in NON_WORDS100k: word in data", 'M ops/sec', 0.1, 3),
         ('items()', 'list(data.items())', ' ops/sec', 1, 1),
         ('keys()', 'list(data.keys())', ' ops/sec', 1, 1),
-#        ('values()', 'list(data.values())', ' ops/sec', 1, 1),
+        # ('values()', 'list(data.values())', ' ops/sec', 1, 1),
     ]
 
     common_setup = """
@@ -107,9 +104,8 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
     for test_name, test, descr, op_count, repeats in tests:
         for name, setup in structures:
             timer = timeit.Timer(test, setup)
-            full_test_name = "%s %s" % (name, test_name)
+            full_test_name = f"{name} {test_name}"
             bench(full_test_name, timer, descr, op_count, repeats)
-
 
     # DAWG-specific benchmarks
     for struct_name, setup in structures[1:]:
@@ -122,13 +118,12 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
         for meth in ['prefixes']:
             for name, data in _bench_data:
                 bench(
-                    '%s.%s (%s)' % (struct_name, meth, name),
+                    f'{struct_name}.{meth} ({name})',
                     timeit.Timer(
-                        "for word in %s:\n"
-                        "   data.%s(word)" % (data, meth),
-                        setup
+                        f"for word in {data}:\n   data.{meth}(word)",
+                        setup,
                     ),
-                    runs=3
+                    runs=3,
                 )
 
         _bench_data = [
@@ -141,29 +136,30 @@ NON_WORDS_1k = ['ыва', 'xyz', 'соы', 'Axx', 'avы']*200
         for xxx, avg, data in _bench_data:
             for meth in ['keys', 'items']:
                 bench(
-                    '%s.%s(prefix="%s"), %s' % (struct_name, meth, xxx, avg),
+                    f'{struct_name}.{meth}(prefix="{xxx}"), {avg}',
                     timeit.Timer(
-                        "for word in %s: data.%s(word)" % (data, meth),
-                        setup
+                        f"for word in {data}: data.{meth}(word)",
+                        setup,
                     ),
                     'K ops/sec',
                     op_count=1,
-                    runs=3
+                    runs=3,
                 )
 
             for meth in ['iterkeys', 'iteritems']:
                 bench(
-                    '%s.%s(prefix="%s"), %s' % (struct_name, meth, xxx, avg),
+                    f'{struct_name}.{meth}(prefix="{xxx}"), {avg}',
                     timeit.Timer(
-                        "for word in %s: list(data.%s(word))" % (data, meth),
-                        setup
+                        f"for word in {data}: list(data.{meth}(word))",
+                        setup,
                     ),
                     'K ops/sec',
                     op_count=1,
-                    runs=3
+                    runs=3,
                 )
+
 
 if __name__ == '__main__':
     benchmark()
-    #profiling()
+    # profiling()
     print('\n~~~~~~~~~~~~~~\n')

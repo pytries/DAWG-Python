@@ -1,19 +1,15 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-import os
 import zipfile
+from pathlib import Path
 
-DEV_DATA_PATH = os.path.join(
-    os.path.dirname(__file__),
-    '..',
-    'dev_data',
-)
+DEV_DATA_PATH = Path(__file__).parent.parent / "dev_data"
+
 
 def data_path(*args):
     """
     Returns a path to dev data
     """
-    return os.path.join(DEV_DATA_PATH, *args)
+    return DEV_DATA_PATH.joinpath(*args)
+
 
 def words100k():
     zip_name = data_path('words100k.txt.zip')
